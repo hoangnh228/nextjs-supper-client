@@ -1,10 +1,36 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { EntityError, HttpError } from '@/lib/http'
+import { clsx, type ClassValue } from 'clsx'
+import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
+import { toast } from 'sonner'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
+}
+
+export const handleErrorApi = <TFieldValues extends FieldValues>({
+  error,
+  setError
+}: {
+  error: unknown
+  setError?: UseFormSetError<TFieldValues>
+}) => {
+  if (error instanceof EntityError) {
+    error.payload.errors.forEach((error) => {
+      setError?.(error.field as Path<TFieldValues>, {
+        message: error.message,
+        type: 'server'
+      })
+    })
+  } else {
+    toast.error((error as HttpError).payload.message ?? 'Something went wrong')
+  }
 }
 
 export function normalizePath(path: string) {
-  return path.startsWith("/") ? path.slice(1) : path;
+  return path.startsWith('/') ? path.slice(1) : path
+}
+
+export const getAccessTokenFromLocalStorage = () => {
+  return localStorage.getItem('accessToken')
 }
