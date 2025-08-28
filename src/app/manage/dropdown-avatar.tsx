@@ -9,7 +9,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { handleErrorApi } from '@/lib/utils'
+import { useLogoutMutation } from '@/queries/useAuth'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const account = {
   name: 'Nguyễn Văn A',
@@ -17,6 +20,18 @@ const account = {
 }
 
 export default function DropdownAvatar() {
+  const router = useRouter()
+  const logoutMutation = useLogoutMutation()
+  const handleLogout = async () => {
+    if (logoutMutation.isPending) return
+    try {
+      await logoutMutation.mutateAsync()
+      router.push('/login')
+    } catch (error: unknown) {
+      handleErrorApi({ error })
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -37,7 +52,7 @@ export default function DropdownAvatar() {
         </DropdownMenuItem>
         <DropdownMenuItem>Hỗ trợ</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>Đăng xuất</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
