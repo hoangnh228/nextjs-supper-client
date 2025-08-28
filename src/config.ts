@@ -15,6 +15,5 @@ if (!configProject.success) {
   throw new Error('Invalid environment variables')
 }
 
-console.log(configProject.data)
 const envConfig = configProject.data
 export default envConfig

@@ -35,7 +35,7 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className='mx-auto max-w-sm'>
+    <Card className='mx-auto max-w-sm w-full'>
       <CardHeader>
         <CardTitle className='text-2xl'>Đăng nhập</CardTitle>
         <CardDescription>Nhập email và mật khẩu của bạn để đăng nhập vào hệ thống</CardDescription>

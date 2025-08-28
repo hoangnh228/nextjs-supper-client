@@ -27,10 +27,8 @@ export const handleErrorApi = <TFieldValues extends FieldValues>({
   }
 }
 
-export function normalizePath(path: string) {
-  return path.startsWith('/') ? path.slice(1) : path
-}
+export const normalizePath = (path: string) => (path.startsWith('/') ? path.slice(1) : path)
 
-export const getAccessTokenFromLocalStorage = () => {
-  return localStorage.getItem('accessToken')
-}
+const isBrowser = typeof window !== 'undefined'
+export const getAccessTokenFromLocalStorage = () => (isBrowser ? localStorage.getItem('accessToken') : null)
+export const getRefreshTokenFromLocalStorage = () => (isBrowser ? localStorage.getItem('refreshToken') : null)
