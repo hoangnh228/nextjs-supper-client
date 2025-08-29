@@ -5,18 +5,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import useAccountProfile from '@/queries/useAccountProfile'
+import { handleErrorApi } from '@/lib/utils'
+import { useAccountMe, useUpdateMeMutation } from '@/queries/useAccountProfile'
+import { useUploadMediaMutation } from '@/queries/useMedia'
 import { UpdateMeBody, UpdateMeBodyType } from '@/schemaValidations/account.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 export default function UpdateProfileForm() {
   const [file, setFile] = useState<File | null>(null)
   const avatarRef = useRef<HTMLInputElement>(null)
 
-  const { data } = useAccountProfile()
+  const { data, refetch } = useAccountMe()
+  const updateMeMutation = useUpdateMeMutation()
+  const uploadMediaMutation = useUploadMediaMutation()
 
   const form = useForm<UpdateMeBodyType>({
     resolver: zodResolver(UpdateMeBody),
@@ -36,6 +41,33 @@ export default function UpdateProfileForm() {
     }
   }, [data, form])
 
+  const resetForm = () => {
+    form.reset()
+    setFile(null)
+  }
+
+  const handleSubmit = async (values: UpdateMeBodyType) => {
+    if (updateMeMutation.isPending) return
+    try {
+      let body = values
+      if (file) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await uploadMediaMutation.mutateAsync(formData)
+        const imageUrl = res.payload.data
+        body = {
+          ...body,
+          avatar: imageUrl
+        }
+      }
+      const res = await updateMeMutation.mutateAsync(body)
+      toast.success(res.payload.message)
+      refetch()
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError })
+    }
+  }
+
   const avatar = form.watch('avatar')
   const name = form.watch('name')
 
@@ -44,7 +76,12 @@ export default function UpdateProfileForm() {
 
   return (
     <Form {...form}>
-      <form noValidate className='grid auto-rows-max items-start gap-4 md:gap-8'>
+      <form
+        noValidate
+        className='grid auto-rows-max items-start gap-4 md:gap-8'
+        onReset={resetForm}
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <Card x-chunk='dashboard-07-chunk-0'>
           <CardHeader>
             <CardTitle>Thông tin cá nhân</CardTitle>
@@ -70,6 +107,7 @@ export default function UpdateProfileForm() {
                           const file = e.target.files?.[0]
                           if (file) {
                             setFile(file)
+                            field.onChange('http://localhost:3000/' + field.name)
                           }
                         }}
                       />

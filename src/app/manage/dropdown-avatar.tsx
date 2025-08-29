@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { handleErrorApi } from '@/lib/utils'
-import useAccountProfile from '@/queries/useAccountProfile'
+import { useAccountMe } from '@/queries/useAccountProfile'
 import { useLogoutMutation } from '@/queries/useAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation'
 export default function DropdownAvatar() {
   const router = useRouter()
   const logoutMutation = useLogoutMutation()
-  const { data } = useAccountProfile()
+  const { data } = useAccountMe()
   const account = data?.payload.data
 
   const handleLogout = async () => {
