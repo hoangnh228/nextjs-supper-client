@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       expires: decodedAccessToken.exp * 1000
     })
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       expires: decodedRefreshToken.exp * 1000
     })
 
