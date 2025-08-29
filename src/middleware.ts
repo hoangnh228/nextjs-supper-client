@@ -11,7 +11,9 @@ export function middleware(request: NextRequest) {
 
   // if not authenticated, not allow to access private routes
   if (privateRoutes.some((route) => pathname.startsWith(route)) && !refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const url = new URL('/login', request.url)
+    url.searchParams.set('clearTokens', 'true')
+    return NextResponse.redirect(url)
   }
 
   // if authenticated, not allow to access unAuthRoutes

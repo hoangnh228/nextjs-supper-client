@@ -15,6 +15,8 @@ export default function RefreshToken() {
       checkAndRefreshToken({
         onSuccess: () => router.push(redirectPath ?? '/')
       })
+    } else {
+      router.push('/')
     }
   }, [router, refreshToken, redirectPath])
 

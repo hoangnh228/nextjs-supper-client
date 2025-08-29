@@ -1,5 +1,6 @@
 'use client'
 
+import { useAppContext } from '@/components/app-provider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
@@ -9,13 +10,18 @@ import { handleErrorApi } from '@/lib/utils'
 import { useLoginMutation } from '@/queries/useAuth'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 export default function LoginForm() {
+  const searchParams = useSearchParams()
+  const clearTokens = searchParams.get('clearTokens')
+  const { setIsAuth } = useAppContext()
   const router = useRouter()
   const loginMutation = useLoginMutation()
+
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
@@ -23,6 +29,7 @@ export default function LoginForm() {
       password: ''
     }
   })
+
   const onSubmit = async (body: LoginBodyType) => {
     // when click submit, react hook form will validate form by zod scheme on client first
     // if not pass, will not call api
@@ -36,6 +43,10 @@ export default function LoginForm() {
       handleErrorApi({ error, setError: form.setError })
     }
   }
+
+  useEffect(() => {
+    if (clearTokens) setIsAuth(false)
+  }, [clearTokens, setIsAuth])
 
   return (
     <Card className='mx-auto max-w-sm w-full'>
