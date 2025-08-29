@@ -39,6 +39,8 @@ export const setAccessTokenToLocalStorage = (accessToken: string) =>
   isBrowser && localStorage.setItem('accessToken', accessToken)
 export const setRefreshTokenToLocalStorage = (refreshToken: string) =>
   isBrowser && localStorage.setItem('refreshToken', refreshToken)
+export const removeTokenFromLocalStorage = () =>
+  isBrowser && localStorage.removeItem('accessToken') && localStorage.removeItem('refreshToken')
 
 export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuccess?: () => void }) => {
   // should not take logic get access and refresh token out of this function (checkAndRefreshToken)
@@ -57,8 +59,11 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
   // when use new Date().getTime(), it will return epoch time (milliseconds)
   const now = Math.round(new Date().getTime() / 1000)
 
-  // if refresh token is expired, dont process anymore
-  if (decodedRefreshToken.exp <= now) return
+  // if refresh token is expired, logout
+  if (decodedRefreshToken.exp <= now) {
+    removeTokenFromLocalStorage()
+    return param?.onError?.()
+  }
 
   // eg: access token is expired in 10 seconds
   // we will check if 1/3 time left, we will refresh token
