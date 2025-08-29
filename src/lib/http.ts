@@ -122,6 +122,8 @@ const request = async <Response>(
           location.href = '/login'
         }
       } else {
+        // this is case when access token is not expired yet
+        // and we call api in Nextjs server (route handler or server component) to server backend
         const accessToken = (options?.headers as { Authorization?: string }).Authorization?.split('Bearer ')[1]
         redirect(`/logout?accessToken=${accessToken}`)
       }
