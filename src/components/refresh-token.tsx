@@ -20,7 +20,7 @@ export default function RefreshToken() {
     checkAndRefreshToken({
       onError: () => {
         clearInterval(interval as NodeJS.Timeout)
-        router.push('/logout')
+        router.push('/login')
       }
     })
 
@@ -32,7 +32,7 @@ export default function RefreshToken() {
         checkAndRefreshToken({
           onError: () => {
             clearInterval(interval as NodeJS.Timeout)
-            router.push('/logout')
+            router.push('/login')
           }
         }),
       timeOut

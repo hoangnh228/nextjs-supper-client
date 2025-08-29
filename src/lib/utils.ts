@@ -57,9 +57,11 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
 
   // token time is calculated in epoch time (seconds)
   // when use new Date().getTime(), it will return epoch time (milliseconds)
-  const now = Math.round(new Date().getTime() / 1000)
+  const now = new Date().getTime() / 1000 - 1
 
   // if refresh token is expired, logout
+  // decodedRefreshToken.exp = 10s
+  // new Date().getTime() / 1000 = 9.5s
   if (decodedRefreshToken.exp <= now) {
     removeTokenFromLocalStorage()
     return param?.onError?.()
