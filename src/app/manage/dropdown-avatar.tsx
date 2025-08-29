@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { handleErrorApi } from '@/lib/utils'
-import { useAccountMe } from '@/queries/useAccountProfile'
+import { useAccountMe } from '@/queries/useAccount'
 import { useLogoutMutation } from '@/queries/useAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
