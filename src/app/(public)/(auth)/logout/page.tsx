@@ -1,5 +1,6 @@
 'use client'
 
+import { useAppContext } from '@/components/app-provider'
 import { getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -12,6 +13,7 @@ export default function Logout() {
   const refreshToken = searchParams.get('refreshToken')
   const accessToken = searchParams.get('accessToken')
   const ref = useRef<ReturnType<typeof useLogoutMutation>['mutateAsync'] | null>(null)
+  const { setIsAuth } = useAppContext()
 
   useEffect(() => {
     if (
@@ -24,12 +26,13 @@ export default function Logout() {
         setTimeout(() => {
           ref.current = null
         }, 1000)
+        setIsAuth(false)
         router.push('/login')
       })
     } else {
       router.push('/')
     }
-  }, [mutateAsync, router, refreshToken, accessToken])
+  }, [mutateAsync, router, refreshToken, accessToken, setIsAuth])
 
   return <div>Logging out...</div>
 }
