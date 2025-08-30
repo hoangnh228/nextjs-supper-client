@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useGetAccountList } from '@/queries/useAccount'
 import { AccountListResType, AccountType } from '@/schemaValidations/account.schema'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -58,7 +59,7 @@ const AccountTableContext = createContext<{
   setEmployeeDelete: (value: AccountItem | null) => {}
 })
 
-export const columns: ColumnDef<AccountType>[] = [
+const columns: ColumnDef<AccountType>[] = [
   {
     accessorKey: 'id',
     header: 'ID'
@@ -165,7 +166,8 @@ export default function AccountTable() {
   // const params = Object.fromEntries(searchParam.entries())
   const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>()
   const [employeeDelete, setEmployeeDelete] = useState<AccountItem | null>(null)
-  const data: AccountItem[] = []
+  const accountListQuery = useGetAccountList()
+  const data = accountListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
