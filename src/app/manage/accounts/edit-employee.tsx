@@ -76,6 +76,7 @@ export default function EditEmployee({
     if (updateAccountMutation.isPending) return
     try {
       let body = values
+
       if (file) {
         const formData = new FormData()
         formData.append('file', file)
@@ -86,14 +87,14 @@ export default function EditEmployee({
           avatar: imageUrl
         }
       }
+
       const res = await updateAccountMutation.mutateAsync({
         ...body,
         id: id as number
       })
+
       toast.success(res.payload.message)
-      setId(undefined)
-      form.reset()
-      setFile(null)
+      resetForm()
       onSubmitSuccess?.()
     } catch (error) {
       handleErrorApi({ error, setError: form.setError })
@@ -101,6 +102,7 @@ export default function EditEmployee({
   }
 
   const resetForm = () => {
+    setId(undefined)
     form.reset()
     setFile(null)
   }
@@ -110,7 +112,7 @@ export default function EditEmployee({
       open={Boolean(id)}
       onOpenChange={(value) => {
         if (!value) {
-          setId(undefined)
+          resetForm()
         }
       }}
     >
