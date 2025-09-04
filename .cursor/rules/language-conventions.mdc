@@ -1,0 +1,107 @@
+---
+alwaysApply: true
+---
+
+# Language & Content Conventions
+
+## Language Usage Rules
+
+- **Vietnamese**: All user-facing text, UI labels, messages, and business content
+- **English**: Code, comments, documentation, variable names, and technical terms
+- **Mixed Context**: Business domain terms may use Vietnamese in UI but English in code
+
+## UI Text Standards
+
+- Page titles, button labels, form fields → Vietnamese
+- Error messages and user feedback → Vietnamese
+- Navigation menus and breadcrumbs → Vietnamese
+- Business terms: "Nhân viên", "Đơn hàng", "Bàn ăn", "Món ăn", "Phân tích"
+
+## Code Standards
+
+- Variable names, function names, comments → English
+- TypeScript interfaces and types → English
+- API endpoint names and schema → English
+- File names and directory names → English
+
+## Examples
+
+### Good UI Text (Vietnamese)
+
+```typescript
+// In components
+<Button>Thêm nhân viên</Button>
+<h1>Quản lý đơn hàng</h1>
+<Label>Tên đăng nhập</Label>
+<p>Đã cập nhật thông tin thành công</p>
+```
+
+### Good Code (English)
+
+```typescript
+// Variables and functions
+const employeeList = data?.payload.data
+const handleSubmitForm = () => {}
+const useAccountMe = () => {}
+
+// Types and interfaces
+interface EmployeeFormData {
+  name: string
+  email: string
+}
+
+// Comments
+// Handle form submission and update employee data
+// TODO: Add validation for email format
+```
+
+## Business Domain Mapping
+
+| Vietnamese (UI) | English (Code)  | Context               |
+| --------------- | --------------- | --------------------- |
+| Nhân viên       | employee, staff | User management       |
+| Đơn hàng        | order           | Order processing      |
+| Bàn ăn          | table           | Table management      |
+| Món ăn          | dish, menu      | Food menu             |
+| Phân tích       | analytics       | Business intelligence |
+| Cài đặt         | settings        | User preferences      |
+| Dashboard       | dashboard       | Admin overview        |
+
+## Content Style Guide
+
+- **Tone**: Professional but friendly
+- **Voice**: Direct and clear instructions
+- **Formality**: Polite form (anh/chị) in user communications
+- **Consistency**: Use the same terms throughout the app
+
+## Error Messages
+
+Always in Vietnamese with helpful context:
+
+```typescript
+// Good error messages
+'Vui lòng nhập tên đăng nhập'
+'Email không đúng định dạng'
+'Không thể kết nối với server, vui lòng thử lại'
+'Bạn không có quyền truy cập trang này'
+```
+
+## Navigation & Menu Items
+
+Reference [`src/app/manage/menuItems.ts`](mdc:src/app/manage/menuItems.ts) for consistent terminology:
+
+- Dashboard → "Dashboard" (keep English for this term)
+- Orders → "Đơn hàng"
+- Tables → "Bàn ăn"
+- Dishes → "Món ăn"
+- Analytics → "Phân tích"
+- Staff → "Nhân viên"
+
+## Brand Voice
+
+Nhà hàng Big Boy brand values reflected in content:
+
+- Slogan: "Vị ngon, trọn khoảnh khắc"
+- Quality focus: emphasize freshness and taste
+- Service excellence: helpful and efficient
+- Modern approach: technology-enhanced dining experience

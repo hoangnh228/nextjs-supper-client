@@ -1,0 +1,137 @@
+# Project Intelligence - Nhà hàng Big Boy
+
+## Project Overview
+
+This is a restaurant management system for "Big Boy" built with Next.js App Router, featuring both public customer interface and staff management dashboard.
+
+## Key Architecture Patterns
+
+### Authentication Flow
+
+- JWT tokens with httpOnly cookies for security
+- Auto-refresh mechanism via background service
+- Middleware protection for `/manage/*` routes
+- localStorage for client-side token access
+
+### Data Flow
+
+Components → TanStack Query → API Requests → HTTP Client → External API
+
+- Use custom hooks in `queries/` for server state
+- Thin wrappers in `apiRequests/` around `http.ts`
+- Centralized error handling with `handleErrorApi`
+
+### UI Patterns
+
+- shadcn/ui + Radix UI for component system
+- Compound component patterns for complex UI
+- Responsive-first design with TailwindCSS
+- Dark/light mode support with next-themes
+
+## Critical Implementation Paths
+
+### Adding New Protected Routes
+
+1. Create route in `src/app/manage/`
+2. Middleware automatically protects `/manage/*`
+3. Use `useAccountMe()` hook for user context
+4. Handle loading/error states consistently
+
+### Form Implementation
+
+1. Use React Hook Form + Zod for validation
+2. Schema in `schemaValidations/` directory
+3. API request wrapper in `apiRequests/`
+4. TanStack Query mutation for submission
+
+### New Components
+
+1. Follow shadcn/ui patterns for consistency
+2. Use Radix primitives for accessibility
+3. Implement proper TypeScript types
+4. Support both light/dark themes
+
+## User Preferences & Workflow
+
+### Language & Content
+
+- Vietnamese for all UI text and user-facing content
+- English for code, comments, and technical documentation
+- Business domain: Restaurant management context
+
+### Code Style Preferences
+
+- TypeScript strict mode enabled
+- Prefer explicit over implicit
+- Component composition over inheritance
+- Server Components where possible, Client Components when needed
+
+### Development Workflow
+
+- Use Turbopack for fast development builds
+- ESLint + Prettier for code quality
+- Consistent error handling patterns
+- Real-time type checking
+
+## Project-Specific Patterns
+
+### Image Handling
+
+- Use Next.js Image component for optimization
+- ImageKit CDN for external images: `https://ik.imagekit.io/`
+- Transform parameters: `?tr=w-2048,q-75`
+
+### Navigation Patterns
+
+- Route groups: `(public)` for customers, `manage` for staff
+- Mobile-first responsive navigation
+- Sidebar layout for management dashboard
+
+### State Management
+
+- TanStack Query for server state (preferred)
+- React Context for app-level state (auth, theme)
+- Local state with useState for component-specific data
+
+## Known Challenges & Solutions
+
+### Authentication Edge Cases
+
+- Handle token expiry gracefully with auto-refresh
+- Redirect patterns: login → dashboard or refresh-token page
+- Clear tokens on logout to prevent stale state
+
+### Performance Considerations
+
+- Bundle size: Multiple UI libraries, monitor carefully
+- Image loading: Leverage Next.js optimization + CDN
+- Server Components: Use for data fetching when possible
+
+### Development Environment
+
+- Node.js with npm/yarn package management
+- Environment variables validated with Zod
+- Turbopack for fast builds (experimental)
+
+## Future Evolution Patterns
+
+### Scalability Considerations
+
+- Modular architecture supports feature additions
+- Component system allows for design system growth
+- API layer abstracts backend changes
+
+### Feature Development Pipeline
+
+1. Schema definition (Zod)
+2. API client implementation
+3. TanStack Query hook
+4. UI components
+5. Route integration
+
+## Memory Bank Integration
+
+- All project context stored in `memory-bank/` directory
+- Six core files provide comprehensive project understanding
+- Update memory bank when significant changes occur
+- Reference memory bank for context in future sessions

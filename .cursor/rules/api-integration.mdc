@@ -1,0 +1,146 @@
+---
+globs: src/apiRequests/**/*,src/queries/**/*,src/lib/http.ts
+---
+
+# API Integration Patterns
+
+## Data Flow Architecture
+
+Components → TanStack Query Hooks → API Request Functions → HTTP Client → External API
+
+## Layer Responsibilities
+
+### 1. HTTP Client Layer
+
+[`src/lib/http.ts`](mdc:src/lib/http.ts) handles:
+
+- Base URL configuration from environment
+- Authorization header injection
+- Request/response interceptors
+- Error handling and token refresh
+
+### 2. API Request Layer
+
+[`src/apiRequests/`](mdc:src/apiRequests/) contains thin wrappers:
+
+```typescript
+// Example: src/apiRequests/account.ts
+import http from '@/lib/http'
+import { AccountListResType } from '@/schemaValidations/account.schema'
+
+const accountApiRequest = {
+  list: () => http.get<AccountListResType>('/accounts'),
+  sMe: (accessToken: string) =>
+    http.get<AccountResType>('/accounts/me', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    })
+}
+```
+
+### 3. Query Hook Layer
+
+[`src/queries/`](mdc:src/queries/) contains TanStack Query hooks:
+
+```typescript
+// Example: src/queries/useAccount.tsx
+import { useQuery, useMutation } from '@tanstack/react-query'
+import accountApiRequest from '@/apiRequests/account'
+
+export const useAccountMe = () => {
+  return useQuery({
+    queryKey: ['account', 'me'],
+    queryFn: accountApiRequest.me
+  })
+}
+
+export const useAccountListQuery = () => {
+  return useQuery({
+    queryKey: ['accounts'],
+    queryFn: accountApiRequest.list
+  })
+}
+```
+
+## Schema-First Development
+
+1. Define Zod schema in [`src/schemaValidations/`](mdc:src/schemaValidations/)
+2. Export TypeScript types from schema
+3. Use types in API functions and components
+4. Validate forms with React Hook Form + Zod resolver
+
+Example schema pattern:
+
+```typescript
+// src/schemaValidations/account.schema.ts
+import { z } from 'zod'
+
+export const AccountRes = z.object({
+  data: z.object({
+    id: z.number(),
+    name: z.string(),
+    email: z.string()
+  })
+})
+
+export type AccountResType = z.TypeOf<typeof AccountRes>
+```
+
+## Error Handling Strategy
+
+- API errors caught by [`http.ts`](mdc:src/lib/http.ts) interceptors
+- Use [`handleErrorApi`](mdc:src/lib/utils.ts) in components for user feedback
+- TanStack Query provides error state management
+- Display errors via toast notifications (sonner)
+
+## Server vs Client Data Fetching
+
+### Server Components (Preferred)
+
+```typescript
+// In app/manage/dashboard/page.tsx
+import accountApiRequest from '@/apiRequests/account'
+import { cookies } from 'next/headers'
+
+export default async function DashboardPage() {
+  const cookieStore = await cookies()
+  const accessToken = cookieStore.get('accessToken')?.value ?? ''
+  const res = await accountApiRequest.sMe(accessToken)
+
+  return <div>{res.payload.data.name}</div>
+}
+```
+
+### Client Components (When Interactive)
+
+```typescript
+// In interactive components
+import { useAccountMe } from '@/queries/useAccount'
+
+export default function UserProfile() {
+  const { data, isLoading, error } = useAccountMe()
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error loading profile</div>
+
+  return <div>{data?.payload.data.name}</div>
+}
+```
+
+## Environment Configuration
+
+- API endpoint configured in [`src/config.ts`](mdc:src/config.ts)
+- Validated with Zod schema
+- Environment variables: `NEXT_PUBLIC_API_ENDPOINT`, `NEXT_PUBLIC_URL`
+
+## Mutation Patterns
+
+Always invalidate related queries after mutations:
+
+```typescript
+const updateMutation = useMutation({
+  mutationFn: accountApiRequest.update,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['account'] })
+  }
+})
+```

@@ -1,0 +1,156 @@
+---
+globs: *.tsx,*.ts,next.config.ts
+---
+
+# Performance Optimization Guidelines
+
+## Next.js Optimizations
+
+### Image Optimization
+
+- Always use [`next/image`](mdc:next/image) component
+- Configure [`next.config.ts`](mdc:next.config.ts) for external domains
+- ImageKit CDN integration: `https://ik.imagekit.io/freeflo/production/`
+- Transform parameters: `?tr=w-2048,q-75`
+
+```typescript
+// Good: Optimized image usage
+import Image from 'next/image'
+
+<Image
+  src="https://ik.imagekit.io/freeflo/production/image.png?tr=w-2048,q-75"
+  alt="Food item"
+  width={150}
+  height={150}
+  className="object-cover rounded-md"
+/>
+```
+
+### Code Splitting
+
+- Server Components by default (automatic code splitting)
+- Dynamic imports for heavy client components
+- Route-based splitting with App Router
+
+```typescript
+// Good: Dynamic import for heavy components
+import dynamic from 'next/dynamic'
+
+const HeavyChart = dynamic(() => import('./HeavyChart'), {
+  loading: () => <div>Loading chart...</div>
+})
+```
+
+### Font Optimization
+
+- Use [`next/font`](mdc:next/font) for font loading
+- Geist font family already configured in [`src/app/layout.tsx`](mdc:src/app/layout.tsx)
+- Avoid external font CDNs
+
+## Bundle Size Management
+
+### Monitor Bundle
+
+- Use `npm run build` to check bundle size
+- Watch for large dependencies in `node_modules`
+- Multiple UI libraries increase size - justify each addition
+
+### Import Optimization
+
+```typescript
+// Good: Specific imports
+import { Button } from '@/components/ui/button'
+import { formatDate } from '@/lib/utils'
+
+// Bad: Barrel imports
+import * as Icons from 'lucide-react'
+```
+
+## TanStack Query Performance
+
+### Query Optimization
+
+- Use proper `queryKey` structure for cache efficiency
+- Implement `staleTime` and `cacheTime` appropriately
+- Use `select` for data transformation
+
+```typescript
+// Good: Optimized query
+const { data } = useQuery({
+  queryKey: ['accounts', filters],
+  queryFn: () => accountApiRequest.list(filters),
+  staleTime: 5 * 60 * 1000, // 5 minutes
+  select: (data) => data.payload.data // Transform only needed data
+})
+```
+
+### Pagination & Infinite Queries
+
+- Use `useInfiniteQuery` for large lists
+- Implement proper pagination with [`auto-pagination.tsx`](mdc:src/components/auto-pagination.tsx)
+- Limit initial data fetch size
+
+## Turbopack Development
+
+- Already configured in [`package.json`](mdc:package.json) scripts
+- Fast refresh for instant development feedback
+- Build caching for faster subsequent builds
+
+## Client-Side Performance
+
+### Rendering Optimization
+
+- Minimize client components - use Server Components when possible
+- Implement proper loading states
+- Use `React.memo` for expensive re-renders
+
+```typescript
+// Good: Memoized component for expensive operations
+import { memo } from 'react'
+
+const ExpensiveTableRow = memo(({ employee }: { employee: Employee }) => {
+  // Expensive calculations here
+  return <tr>...</tr>
+})
+```
+
+### State Management Performance
+
+- Prefer TanStack Query cache over local state
+- Use React Context sparingly (only for app-wide state)
+- Implement proper dependency arrays in useEffect
+
+## Server Performance
+
+### API Route Optimization
+
+- Use Server Components for data fetching when possible
+- Implement proper error handling in [`src/app/api/`](mdc:src/app/api/) routes
+- Cache responses at API level when appropriate
+
+### Database Query Optimization
+
+- Fetch only required fields
+- Implement proper pagination
+- Use proper indexing (backend responsibility)
+
+## Monitoring & Metrics
+
+### Core Web Vitals
+
+- Monitor LCP (Largest Contentful Paint)
+- Track FID (First Input Delay)
+- Measure CLS (Cumulative Layout Shift)
+
+### Performance Budget
+
+- Bundle size < 200KB gzipped (excluding vendor)
+- Initial load < 2 seconds on 3G
+- Interactive < 3 seconds on mobile
+
+## Image Performance Strategy
+
+- Lazy loading with `next/image` (automatic)
+- WebP format when possible (ImageKit handles conversion)
+- Responsive images with `sizes` prop
+- Preload critical above-the-fold images

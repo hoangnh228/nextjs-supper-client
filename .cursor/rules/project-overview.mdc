@@ -1,0 +1,69 @@
+---
+alwaysApply: true
+---
+
+# Big Boy Restaurant - Project Overview
+
+## Quick Reference
+
+This is a Next.js restaurant management system for "Big Boy" with public customer interface and staff management dashboard.
+
+## Core Documentation
+
+- **Memory Bank**: [`memory-bank/`](mdc:memory-bank/) - Complete project context and patterns
+- **Project Rules**: Detailed in other `.cursor/rules/*.mdc` files
+
+## Architecture Summary
+
+- **Frontend**: Next.js 15 with App Router + TypeScript
+- **UI**: shadcn/ui + Radix UI + TailwindCSS
+- **State**: TanStack Query + React Context
+- **Auth**: JWT with httpOnly cookies + auto-refresh
+- **Forms**: React Hook Form + Zod validation
+
+## Key Directories
+
+- [`src/app/(public)/`](<mdc:src/app/(public)/>) - Customer interface
+- [`src/app/manage/`](mdc:src/app/manage/) - Protected admin dashboard
+- [`src/components/ui/`](mdc:src/components/ui/) - shadcn/ui components
+- [`src/queries/`](mdc:src/queries/) - TanStack Query hooks
+- [`src/apiRequests/`](mdc:src/apiRequests/) - API client functions
+
+## Language Standards
+
+- **Vietnamese**: All UI text and user-facing content
+- **English**: Code, comments, technical documentation
+- **Business Domain**: Restaurant management terminology
+
+## Active Features
+
+✅ Authentication & user management
+✅ Employee CRUD operations
+✅ Responsive UI with dark/light mode
+✅ Protected route system
+
+## In Development
+
+🔄 Order management system
+🔄 Table management
+🔄 Menu/dish management
+🔄 Analytics dashboard
+
+## Quick Commands
+
+```bash
+npm run dev          # Development with Turbopack
+npm run build        # Production build
+npm run lint         # Code linting
+npm run prettier:fix # Format code
+```
+
+## Common Patterns
+
+- Server Components by default, Client Components when interactive
+- TanStack Query for all server state
+- Zod schemas for validation
+- shadcn/ui for consistent UI components
+- Auto-protected `/manage/*` routes via middleware
+
+For detailed guidance, refer to specific rule files in this directory.

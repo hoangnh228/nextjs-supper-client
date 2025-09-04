@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+---
+
+# Big Boy Restaurant - Core Architecture
+
+This is a Next.js restaurant management system with strict architectural patterns.
+
+## Directory Structure
+
+- [`src/app/(public)/`](<mdc:src/app/(public)/>) - Customer-facing routes
+- [`src/app/manage/`](mdc:src/app/manage/) - Protected admin routes (auto-protected by middleware)
+- [`src/apiRequests/`](mdc:src/apiRequests/) - Thin API client wrappers
+- [`src/queries/`](mdc:src/queries/) - TanStack Query custom hooks
+- [`src/components/ui/`](mdc:src/components/ui/) - shadcn/ui components
+- [`src/schemaValidations/`](mdc:src/schemaValidations/) - Zod schemas and types
+
+## Data Flow Pattern
+
+Always follow this flow: Components → TanStack Query Hooks → API Request Functions → HTTP Client → External API
+
+## Route Protection
+
+- Routes under `/manage/*` are automatically protected by [`src/middleware.ts`](mdc:src/middleware.ts)
+- No manual auth checks needed in management components
+- Use [`useAccountMe()`](mdc:src/queries/useAccount.tsx) hook for user context
+
+## TypeScript Standards
+
+- Strict mode enabled - prefer explicit typing over `any`
+- Use Zod schemas for runtime validation
+- Export types from schema files, not separate type files
+
+## Component Patterns
+
+- Server Components by default
+- Client Components only when needed (forms, interactions)
+- Use compound component patterns for complex UI
+- Follow shadcn/ui patterns for consistency

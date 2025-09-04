@@ -1,0 +1,55 @@
+---
+globs: src/app/manage/**/*,src/queries/useAuth.tsx,src/apiRequests/auth.ts,src/middleware.ts
+---
+
+# Authentication & Security Patterns
+
+## Authentication Flow
+
+1. Login → [`/api/auth/login`](mdc:src/app/api/auth/login/route.ts) sets httpOnly cookies
+2. Client stores tokens via [`http.ts`](mdc:src/lib/http.ts) after successful login
+3. All requests use Authorization header from localStorage
+4. Auto-refresh via [`RefreshToken`](mdc:src/components/refresh-token.tsx) component
+
+## Key Implementation Files
+
+- [`src/middleware.ts`](mdc:src/middleware.ts) - Route protection for `/manage/*`
+- [`src/lib/http.ts`](mdc:src/lib/http.ts) - HTTP client with token handling
+- [`src/queries/useAuth.tsx`](mdc:src/queries/useAuth.tsx) - Auth-related queries
+- [`src/apiRequests/auth.ts`](mdc:src/apiRequests/auth.ts) - Auth API calls
+
+## Protected Route Development
+
+```typescript
+// In any /manage/* component:
+import { useAccountMe } from '@/queries/useAccount'
+
+export default function ProtectedComponent() {
+  const { data } = useAccountMe() // Auto-handles loading/error
+  const account = data?.payload.data
+
+  // Component is already protected by middleware
+  return <div>{account?.name}</div>
+}
+```
+
+## Login/Logout Patterns
+
+- Use [`useLoginMutation()`](mdc:src/queries/useAuth.tsx) for login
+- Use [`useLogoutMutation()`](mdc:src/queries/useAuth.tsx) for logout
+- Always update [`useAppContext()`](mdc:src/components/app-provider.tsx) auth state
+- Redirect patterns: login → dashboard, logout → login page
+
+## Token Management
+
+- Never manually handle tokens in components
+- [`http.ts`](mdc:src/lib/http.ts) automatically adds Authorization headers
+- Refresh token handled by background service
+- Clear localStorage on logout to prevent stale state
+
+## Security Best Practices
+
+- httpOnly cookies for secure server-side storage
+- localStorage only for client-side Authorization headers
+- Automatic token rotation prevents long-lived sessions
+- Middleware catches auth failures before components render

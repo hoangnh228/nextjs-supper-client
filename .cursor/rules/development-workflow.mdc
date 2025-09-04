@@ -1,0 +1,169 @@
+---
+alwaysApply: true
+---
+
+# Development Workflow Standards
+
+## Local Development Setup
+
+### Environment Configuration
+
+1. Copy environment variables (create `.env.example` as reference)
+2. Required variables in [`src/config.ts`](mdc:src/config.ts):
+   - `NEXT_PUBLIC_API_ENDPOINT`
+   - `NEXT_PUBLIC_URL`
+
+### Development Server
+
+```bash
+npm run dev          # Start with Turbopack (preferred)
+npm run build        # Production build
+npm run start        # Production server
+```
+
+## Code Quality Workflow
+
+### Before Every Commit
+
+1. **Linting**: `npm run lint` - Fix all ESLint errors
+2. **Formatting**: `npm run prettier:fix` - Auto-format code
+3. **Type Check**: `tsc --noEmit` - Verify TypeScript
+4. **Build Test**: `npm run build` - Ensure production builds
+
+### Code Style Enforcement
+
+- ESLint config extends Next.js recommended + React hooks rules
+- Prettier with import organization plugin
+- TypeScript strict mode enabled
+- Consistent file naming: PascalCase for components, camelCase for utilities
+
+## Feature Development Process
+
+### New Feature Workflow
+
+1. **Schema First**: Define Zod schema in [`src/schemaValidations/`](mdc:src/schemaValidations/)
+2. **API Layer**: Create wrapper in [`src/apiRequests/`](mdc:src/apiRequests/)
+3. **Query Hooks**: Add TanStack Query hooks in [`src/queries/`](mdc:src/queries/)
+4. **UI Components**: Build components with shadcn/ui patterns
+5. **Route Integration**: Add to [`src/app/`](mdc:src/app/) with proper layout
+
+### Adding Protected Features
+
+1. Create route under [`src/app/manage/`](mdc:src/app/manage/) - automatically protected
+2. Add to [`menuItems.ts`](mdc:src/app/manage/menuItems.ts) for navigation
+3. Use [`useAccountMe()`](mdc:src/queries/useAccount.tsx) for user context
+4. Follow existing layout patterns
+
+## Testing Strategy (Future Implementation)
+
+### Testing Pyramid
+
+- **Unit Tests**: Utils, hooks, pure functions
+- **Integration Tests**: API integration, form workflows
+- **E2E Tests**: Critical user journeys
+- **Component Tests**: UI component behavior
+
+### Testing Tools (To Be Added)
+
+- Jest + Testing Library for unit/integration
+- Playwright or Cypress for E2E
+- MSW for API mocking
+- Storybook for component documentation
+
+## File Organization Conventions
+
+### Naming Standards
+
+```
+Components:     PascalCase.tsx (UserProfile.tsx)
+Hooks:          camelCase.tsx (useAuth.tsx)
+Utils:          camelCase.ts (formatDate.ts)
+API Requests:   camelCase.ts (authApiRequest.ts)
+Pages:          lowercase (page.tsx, layout.tsx)
+```
+
+### Import Organization
+
+```typescript
+// 1. React/Next.js imports
+import { useState } from 'react'
+import Image from 'next/image'
+
+// 2. Third-party libraries
+import { useQuery } from '@tanstack/react-query'
+import { z } from 'zod'
+
+// 3. Internal imports (absolute paths)
+import { Button } from '@/components/ui/button'
+import { useAccountMe } from '@/queries/useAccount'
+
+// 4. Relative imports
+import './styles.css'
+```
+
+## Git Workflow Best Practices
+
+### Commit Message Format
+
+```
+feat: add employee management CRUD operations
+fix: resolve token refresh infinite loop
+docs: update API documentation
+style: format code with prettier
+refactor: extract common form validation logic
+```
+
+### Branch Strategy
+
+- `main`: Production-ready code
+- `develop`: Integration branch
+- `feature/`: Feature development branches
+- `fix/`: Bug fix branches
+
+## Performance Monitoring
+
+### Development Metrics
+
+- Bundle size analysis with `npm run build`
+- Lighthouse scores in development
+- React DevTools profiling for re-renders
+- TanStack Query DevTools for cache inspection
+
+### Production Monitoring (Future)
+
+- Core Web Vitals tracking
+- Error monitoring (Sentry)
+- Performance monitoring (Vercel Analytics)
+- User behavior analytics
+
+## Documentation Standards
+
+### Code Documentation
+
+- JSDoc for complex functions
+- TypeScript interfaces for API contracts
+- README updates for significant changes
+- Inline comments for business logic
+
+### Project Documentation
+
+- Memory bank updates for architectural changes
+- API documentation in [`docs/`](mdc:docs/) directory
+- Decision records for significant choices
+- Onboarding documentation for new developers
+
+## Environment Management
+
+### Development vs Production
+
+- Use `process.env.NODE_ENV` for environment detection
+- Different API endpoints per environment
+- Environment-specific error handling
+- Proper secret management (no secrets in code)
+
+### Build Optimization
+
+- Turbopack for development speed
+- Production builds with optimization
+- Bundle analysis for size monitoring
+- Static asset optimization

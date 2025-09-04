@@ -1,0 +1,102 @@
+---
+globs: src/components/**/*,src/app/**/*.tsx
+---
+
+# Component Development Standards
+
+## UI Component System
+
+Built on shadcn/ui + Radix primitives. Always check [`src/components/ui/`](mdc:src/components/ui/) before creating new components.
+
+## Component Patterns
+
+### New UI Components
+
+1. Use shadcn/ui CLI when possible: `npx shadcn@latest add component-name`
+2. Follow existing patterns in [`src/components/ui/`](mdc:src/components/ui/)
+3. Support both light/dark themes automatically
+4. Implement proper TypeScript interfaces
+
+### Business Components
+
+```typescript
+// Good: Composition with shadcn/ui
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+
+export function EmployeeCard({ employee }: { employee: Employee }) {
+  return (
+    <Card>
+      <CardHeader>{employee.name}</CardHeader>
+      <CardContent>
+        <Button>Edit</Button>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+### Form Components
+
+Always use React Hook Form + Zod:
+
+```typescript
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoginBodyType, LoginBody } from '@/schemaValidations/auth.schema'
+
+export function LoginForm() {
+  const form = useForm<LoginBodyType>({
+    resolver: zodResolver(LoginBody)
+  })
+
+  // Submit with TanStack Query mutation
+  const loginMutation = useLoginMutation()
+}
+```
+
+## Layout Patterns
+
+### Public Layout
+
+Reference [`src/app/(public)/layout.tsx`](<mdc:src/app/(public)/layout.tsx>) for customer-facing pages:
+
+- Responsive header with mobile navigation
+- Dark mode toggle
+- Brand consistency
+
+### Management Layout
+
+Reference [`src/app/manage/layout.tsx`](mdc:src/app/manage/layout.tsx) for admin pages:
+
+- Sidebar navigation from [`menuItems.ts`](mdc:src/app/manage/menuItems.ts)
+- User avatar dropdown
+- Responsive sidebar collapse
+
+## Image Handling
+
+- Always use Next.js [`Image`](mdc:next/image) component
+- External images from ImageKit: `https://ik.imagekit.io/freeflo/production/`
+- Add transform parameters: `?tr=w-2048,q-75`
+- Configure in [`next.config.ts`](mdc:next.config.ts) remotePatterns
+
+## Responsive Design
+
+- Mobile-first approach with TailwindCSS
+- Use breakpoint prefixes: `sm:`, `md:`, `lg:`
+- Test on mobile, tablet, desktop
+- Responsive navigation patterns already established
+
+## State Management in Components
+
+- TanStack Query for server state
+- Local useState for component-specific state
+- React Context for app-wide state (see [`app-provider.tsx`](mdc:src/components/app-provider.tsx))
+- Avoid prop drilling - use context or lift state up
+
+## Error Handling
+
+- Use [`handleErrorApi`](mdc:src/lib/utils.ts) for consistent error handling
+- Display errors with toast notifications via sonner
+- Graceful fallbacks for loading/error states
+- Form validation errors shown inline
