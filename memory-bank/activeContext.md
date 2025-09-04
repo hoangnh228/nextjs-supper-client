@@ -4,15 +4,16 @@
 
 ### Immediate Priorities
 
-1. **Memory Bank Initialization**: Hoàn thành việc thiết lập tài liệu dự án
-2. **Code Quality**: Đảm bảo no linting errors trong codebase
-3. **Documentation Updates**: Cập nhật README và .cursorrules
+1. **Memory Bank Updates**: Cập nhật tài liệu sau khi hoàn thành dishes module
+2. **Next Feature Planning**: Chuẩn bị development cho Order Management
+3. **Code Quality**: Đảm bảo no linting errors trong codebase
 
 ### Recent Changes
 
-- **Memory Bank Setup**: Tạo thành công structure tài liệu dự án
-- **Project Analysis**: Hoàn thành việc phân tích architecture và patterns
-- **Documentation**: Thiết lập 6 core files cho memory bank
+- **Dishes Management Module**: Hoàn thành toàn bộ CRUD operations cho dishes
+- **Image Upload Integration**: Thành công tích hợp media upload với ImageKit
+- **Table Data Management**: TanStack React Table với pagination và filtering
+- **Form Validation**: React Hook Form + Zod cho dish forms
 
 ## Active Decisions & Considerations
 
@@ -33,16 +34,16 @@
 ### Immediate Actions (Today)
 
 1. ✅ Complete memory bank files (progress.md)
-2. 📋 Update .cursorrules với project insights
-3. 📋 Review và fix any linting issues
-4. 📋 Update README.md với project-specific information
+2. ✅ Update .cursorrules với project insights
+3. 📋 Plan Order Management module development
+4. 📋 Review và fix any linting issues
 
 ### Short-term Goals (This Week)
 
-- **Feature Development**: Focus on existing roadmap items
+- **Order Management**: Start development on order processing system
+- **Table Management**: Begin table booking và status tracking
 - **Code Quality**: Implement consistent error handling patterns
 - **Testing Strategy**: Plan và implement testing approach
-- **Documentation**: Complete API documentation
 
 ### Medium-term Goals (Next 2 weeks)
 
@@ -58,7 +59,8 @@
 - **Architecture**: Solid Next.js App Router foundation
 - **UI System**: Consistent shadcn/ui component usage
 - **Authentication**: Robust JWT implementation
-- **Type Safety**: Good TypeScript coverage
+- **CRUD Patterns**: Proven pattern with Employee và Dishes modules
+- **Data Management**: TanStack Query working excellently
 
 ### Areas Needing Attention
 

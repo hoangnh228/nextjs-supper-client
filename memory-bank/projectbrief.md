@@ -36,16 +36,22 @@
    - Phân quyền theo vai trò
    - Cập nhật thông tin cá nhân
 
-3. **Giao diện người dùng**
+3. **Quản lý món ăn**
+   - CRUD operations cho dishes
+   - Upload và quản lý hình ảnh
+   - Status management và filtering
+
+4. **Giao diện người dùng**
    - Responsive design
    - Dark/light mode toggle
    - Component system với shadcn/ui
 
 ### Roadmap phát triển
 
-- Cải thiện authentication flows
-- Nâng cao tính năng quản lý accounts
+- Phát triển Order Management system
+- Xây dựng Table Management features
 - Tối ưu hóa xử lý media và hình ảnh
+- Thêm Analytics và reporting
 
 ## Yêu cầu kỹ thuật
 

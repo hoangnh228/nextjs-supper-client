@@ -39,11 +39,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { formatCurrency, getVietnameseDishStatus } from '@/lib/utils'
-import { useDishListQuery } from '@/queries/useDish'
+import { formatCurrency, getVietnameseDishStatus, handleErrorApi } from '@/lib/utils'
+import { useDeleteDishMutation, useDishListQuery } from '@/queries/useDish'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 type DishItem = DishListResType['data'][0]
 
@@ -137,6 +138,18 @@ function AlertDialogDeleteDish({
   dishDelete: DishItem | null
   setDishDelete: (value: DishItem | null) => void
 }) {
+  const deleteDishMutation = useDeleteDishMutation()
+  const handleDeleteDish = async () => {
+    if (deleteDishMutation.isPending) return
+    try {
+      const res = await deleteDishMutation.mutateAsync(dishDelete?.id as number)
+      setDishDelete(null)
+      toast.success(res.payload.message)
+    } catch (error) {
+      handleErrorApi({ error })
+    }
+  }
+
   return (
     <AlertDialog
       open={Boolean(dishDelete)}
@@ -156,7 +169,7 @@ function AlertDialogDeleteDish({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={handleDeleteDish}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -171,6 +184,7 @@ export default function DishTable() {
   const [dishIdEdit, setDishIdEdit] = useState<number | undefined>()
   const [dishDelete, setDishDelete] = useState<DishItem | null>(null)
   const dishListQuery = useDishListQuery()
+  const deleteDishMutation = useDeleteDishMutation()
   const data = dishListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])

@@ -84,6 +84,20 @@ React Hook   Custom      Thin Wrapper   Axios-like     REST API
 3. **HTTP Client** (`lib/http.ts`): Centralized request handling
 4. **Schema Validation** (`schemaValidations/*`): Zod schemas và TypeScript types
 
+### Proven CRUD Patterns
+
+Established pattern từ Employee và Dishes modules:
+
+```
+Schema → API Request → Query Hooks → Components → UI
+  │         │            │             │        │
+  ▼         ▼            ▼             ▼        ▼
+ Zod    HTTP Client   TanStack     React     shadcn/ui
+Validation   +         Query     Hook Form   Components
+          Error                      +
+        Handling                 Validation
+```
+
 ## Component Architecture
 
 ### Design System Hierarchy
