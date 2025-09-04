@@ -8,16 +8,21 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { DishStatus, DishStatusValues } from '@/constants/type'
-import { getVietnameseDishStatus } from '@/lib/utils'
+import { getVietnameseDishStatus, handleErrorApi } from '@/lib/utils'
+import { useAddDishMutation } from '@/queries/useDish'
+import { useUploadMediaMutation } from '@/queries/useMedia'
 import { CreateDishBody, CreateDishBodyType } from '@/schemaValidations/dish.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle, Upload } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 export default function AddDish() {
   const [file, setFile] = useState<File | null>(null)
   const [open, setOpen] = useState(false)
+  const addDishMutation = useAddDishMutation()
+  const uploadMediaMutation = useUploadMediaMutation()
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const form = useForm<CreateDishBodyType>({
     resolver: zodResolver(CreateDishBody),
@@ -25,7 +30,7 @@ export default function AddDish() {
       name: '',
       description: '',
       price: 0,
-      image: '',
+      image: undefined,
       status: DishStatus.Unavailable
     }
   })
@@ -37,6 +42,35 @@ export default function AddDish() {
     }
     return image
   }, [file, image])
+
+  const resetForm = () => {
+    form.reset()
+    setFile(null)
+  }
+
+  const handleSubmit = async (values: CreateDishBodyType) => {
+    if (addDishMutation.isPending) return
+    try {
+      let body = values
+      if (file) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await uploadMediaMutation.mutateAsync(formData)
+        const imageUrl = res.payload.data
+        body = {
+          ...body,
+          image: imageUrl
+        }
+      }
+
+      const res = await addDishMutation.mutateAsync(body)
+      toast.success(res.payload.message)
+      resetForm()
+      setOpen(false)
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError })
+    }
+  }
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -51,7 +85,13 @@ export default function AddDish() {
           <DialogTitle>Thêm món ăn</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form noValidate className='grid auto-rows-max items-start gap-4 md:gap-8' id='add-dish-form'>
+          <form
+            noValidate
+            className='grid auto-rows-max items-start gap-4 md:gap-8'
+            id='add-dish-form'
+            onSubmit={form.handleSubmit(handleSubmit)}
+            onReset={resetForm}
+          >
             <div className='grid gap-4 py-4'>
               <FormField
                 control={form.control}
@@ -61,7 +101,7 @@ export default function AddDish() {
                     <div className='flex gap-2 items-start justify-start'>
                       <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
                         <AvatarImage src={previewAvatarFromFile} />
-                        <AvatarFallback className='rounded-none'>{name || 'Avatar'}</AvatarFallback>
+                        <AvatarFallback className='rounded-none'>{name || 'Ảnh món ăn'}</AvatarFallback>
                       </Avatar>
                       <input
                         type='file'
@@ -112,7 +152,13 @@ export default function AddDish() {
                     <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                       <Label htmlFor='price'>Giá</Label>
                       <div className='col-span-3 w-full space-y-2'>
-                        <Input id='price' className='w-full' {...field} type='number' />
+                        <Input
+                          id='price'
+                          className='w-full'
+                          {...field}
+                          type='number'
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
                         <FormMessage />
                       </div>
                     </div>

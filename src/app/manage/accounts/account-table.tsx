@@ -55,10 +55,10 @@ const AccountTableContext = createContext<{
   employeeDelete: AccountItem | null
   setEmployeeDelete: (value: AccountItem | null) => void
 }>({
-  setEmployeeIdEdit: (value: number | undefined) => {},
+  setEmployeeIdEdit: () => {},
   employeeIdEdit: undefined,
   employeeDelete: null,
-  setEmployeeDelete: (value: AccountItem | null) => {}
+  setEmployeeDelete: () => {}
 })
 
 const columns: ColumnDef<AccountType>[] = [
