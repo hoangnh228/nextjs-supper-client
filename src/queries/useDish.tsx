@@ -1,4 +1,5 @@
 import { dishApiRequest } from '@/apiRequests/dish'
+import { revalidateDishes } from '@/lib/actions'
 import { UpdateDishBodyType } from '@/schemaValidations/dish.schema'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -21,8 +22,12 @@ export const useAddDishMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: dishApiRequest.add,
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Invalidate client-side cache
       queryClient.invalidateQueries({ queryKey: ['dishes'] })
+
+      // Option 1: Server Action (preferred for forms)
+      await revalidateDishes()
     }
   })
 }
@@ -31,8 +36,12 @@ export const useUpdateDishMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, ...body }: UpdateDishBodyType & { id: number }) => dishApiRequest.updateDish(id, body),
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Invalidate client-side cache
       queryClient.invalidateQueries({ queryKey: ['dishes'], exact: true })
+
+      // Revalidate server-side cache
+      await revalidateDishes()
     }
   })
 }
