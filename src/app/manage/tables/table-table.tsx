@@ -18,6 +18,7 @@ import {
 import AddTable from '@/app/manage/tables/add-table'
 import EditTable from '@/app/manage/tables/edit-table'
 import AutoPagination from '@/components/auto-pagination'
+import QrcodeTable from '@/components/qrcode-table'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +39,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { getVietnameseTableStatus } from '@/lib/utils'
+import { getTableLink, getVietnameseTableStatus } from '@/lib/utils'
+import { useTableListQuery } from '@/queries/useTable'
 import { TableListResType } from '@/schemaValidations/table.schema'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -76,7 +78,12 @@ export const columns: ColumnDef<TableItem>[] = [
   {
     accessorKey: 'token',
     header: 'QR Code',
-    cell: ({ row }) => <div>{row.getValue('number')}</div>
+    cell: ({ row }) => (
+      <div>
+        {getTableLink({ token: row.getValue('token'), tableNumber: row.getValue('number') })}
+        <QrcodeTable token={row.getValue('token')} tableNumber={row.getValue('number')} />
+      </div>
+    )
   },
   {
     id: 'actions',
@@ -90,6 +97,7 @@ export const columns: ColumnDef<TableItem>[] = [
       const openDeleteTable = () => {
         setTableDelete(row.original)
       }
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -151,7 +159,8 @@ export default function TableTable() {
   // const params = Object.fromEntries(searchParam.entries())
   const [tableIdEdit, setTableIdEdit] = useState<number | undefined>()
   const [tableDelete, setTableDelete] = useState<TableItem | null>(null)
-  const data: TableItem[] = []
+  const tableListQuery = useTableListQuery()
+  const data: TableItem[] = tableListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
