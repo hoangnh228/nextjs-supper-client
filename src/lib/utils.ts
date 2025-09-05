@@ -2,6 +2,7 @@ import authApiRequest from '@/apiRequests/auth'
 import envConfig from '@/config'
 import { DishStatus, OrderStatus, TableStatus } from '@/constants/type'
 import { EntityError, HttpError } from '@/lib/http'
+import { TokenPayload } from '@/types/jwt.types'
 import { clsx, type ClassValue } from 'clsx'
 import { decode } from 'jsonwebtoken'
 import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
@@ -54,8 +55,8 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
   // if not logged in
   if (!accessToken || !refreshToken) return
 
-  const decodedAccessToken = decode(accessToken) as { exp: number; iat: number }
-  const decodedRefreshToken = decode(refreshToken) as { exp: number; iat: number }
+  const decodedAccessToken = decodeToken(accessToken)
+  const decodedRefreshToken = decodeToken(refreshToken)
 
   // token time is calculated in epoch time (seconds)
   // when use new Date().getTime(), it will return epoch time (milliseconds)
@@ -129,6 +130,7 @@ export const getVietnameseTableStatus = (status: (typeof TableStatus)[keyof type
   }
 }
 
-export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
-  return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
-}
+export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) =>
+  envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
+
+export const decodeToken = (token: string) => decode(token) as TokenPayload

@@ -1,5 +1,11 @@
 import envConfig from '@/config'
-import { normalizePath } from '@/lib/utils'
+import {
+  getAccessTokenFromLocalStorage,
+  normalizePath,
+  removeTokenFromLocalStorage,
+  setAccessTokenToLocalStorage,
+  setRefreshTokenToLocalStorage
+} from '@/lib/utils'
 import { LoginResType } from '@/schemaValidations/auth.schema'
 import { redirect } from 'next/navigation'
 
@@ -62,7 +68,7 @@ const request = async <Response>(
   const baseHeaders: { [key: string]: string } = body instanceof FormData ? {} : { 'Content-Type': 'application/json' }
 
   if (isClient) {
-    const accessToken = localStorage.getItem('accessToken')
+    const accessToken = getAccessTokenFromLocalStorage()
     if (accessToken) {
       baseHeaders.Authorization = `Bearer ${accessToken}`
     }
@@ -112,8 +118,7 @@ const request = async <Response>(
         } catch (error) {
           console.error(error)
         } finally {
-          localStorage.removeItem('accessToken')
-          localStorage.removeItem('refreshToken')
+          removeTokenFromLocalStorage()
           clientLogoutRequest = null
 
           // redirect to login may infinite loop if not process right way
@@ -134,14 +139,13 @@ const request = async <Response>(
 
   if (isClient) {
     const normalizedUrl = normalizePath(url)
-    if (normalizedUrl === 'api/auth/login') {
+    if (['api/auth/login', 'api/guest/auth/login'].includes(normalizedUrl)) {
       const { accessToken, refreshToken } = (payload as LoginResType).data
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
+      setAccessTokenToLocalStorage(accessToken)
+      setRefreshTokenToLocalStorage(refreshToken)
       window.dispatchEvent(new Event('auth-change'))
-    } else if (normalizedUrl === 'api/auth/logout') {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
+    } else if (['api/auth/logout', 'api/guest/auth/logout'].includes(normalizedUrl)) {
+      removeTokenFromLocalStorage()
       window.dispatchEvent(new Event('auth-change'))
     }
   }

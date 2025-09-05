@@ -13,7 +13,7 @@ function Logout() {
   const refreshToken = searchParams.get('refreshToken')
   const accessToken = searchParams.get('accessToken')
   const ref = useRef<ReturnType<typeof useLogoutMutation>['mutateAsync'] | null>(null)
-  const { setIsAuth } = useAppContext()
+  const { setRole } = useAppContext()
 
   useEffect(() => {
     if (
@@ -26,13 +26,13 @@ function Logout() {
         setTimeout(() => {
           ref.current = null
         }, 1000)
-        setIsAuth(false)
+        setRole(undefined)
         router.push('/login')
       })
     } else {
       router.push('/')
     }
-  }, [mutateAsync, router, refreshToken, accessToken, setIsAuth])
+  }, [mutateAsync, router, refreshToken, accessToken, setRole])
 
   return <div>Logging out...</div>
 }

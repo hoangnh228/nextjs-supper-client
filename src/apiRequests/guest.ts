@@ -6,7 +6,7 @@ const guestApiRequest = {
   refreshTokenRequest: null as Promise<{ status: number; payload: RefreshTokenResType }> | null,
   sLogin: (body: GuestLoginBodyType) => http.post<GuestLoginResType>('/guest/auth/login', body),
   login: (body: GuestLoginBodyType) =>
-    http.post<GuestLoginResType>('/guest/api/auth/login', body, {
+    http.post<GuestLoginResType>('/api/guest/auth/login', body, {
       baseUrl: ''
     }),
   sLogout: (body: LogoutBodyType & { accessToken: string }) =>

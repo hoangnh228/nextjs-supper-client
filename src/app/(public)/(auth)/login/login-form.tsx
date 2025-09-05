@@ -18,7 +18,7 @@ import { toast } from 'sonner'
 export default function LoginForm() {
   const searchParams = useSearchParams()
   const clearTokens = searchParams.get('clearTokens')
-  const { setIsAuth } = useAppContext()
+  const { setRole } = useAppContext()
   const router = useRouter()
   const loginMutation = useLoginMutation()
 
@@ -38,7 +38,7 @@ export default function LoginForm() {
     try {
       const res = await loginMutation.mutateAsync(body)
       toast.success(res.payload.message)
-      setIsAuth(true)
+      setRole(res.payload.data.account.role)
       router.push('/manage/dashboard')
     } catch (error) {
       handleErrorApi({ error, setError: form.setError })
@@ -46,8 +46,8 @@ export default function LoginForm() {
   }
 
   useEffect(() => {
-    if (clearTokens) setIsAuth(false)
-  }, [clearTokens, setIsAuth])
+    if (clearTokens) setRole(undefined)
+  }, [clearTokens, setRole])
 
   return (
     <Card className='mx-auto max-w-sm w-full'>

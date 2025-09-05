@@ -1,7 +1,8 @@
 'use client'
 
 import RefreshToken from '@/components/refresh-token'
-import { getAccessTokenFromLocalStorage, removeTokenFromLocalStorage } from '@/lib/utils'
+import { decodeToken, getAccessTokenFromLocalStorage, removeTokenFromLocalStorage } from '@/lib/utils'
+import { RoleType } from '@/types/jwt.types'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import React, { createContext, useContext, useEffect, useState } from 'react'
@@ -17,10 +18,12 @@ const queryClient = new QueryClient({
 
 const AppContext = createContext<{
   isAuth: boolean
-  setIsAuth: (isAuth: boolean) => void
+  role: RoleType | undefined
+  setRole: (role?: RoleType | undefined) => void
 }>({
   isAuth: false,
-  setIsAuth: () => {}
+  role: undefined as RoleType | undefined,
+  setRole: () => {}
 })
 
 export const useAppContext = () => {
@@ -28,23 +31,27 @@ export const useAppContext = () => {
 }
 
 export default function AppProvider({ children }: { children: React.ReactNode }) {
-  const [isAuth, setIsAuthState] = useState(false)
-  const setIsAuth = (isAuth: boolean) => {
-    if (isAuth) {
-      setIsAuthState(true)
-    } else {
-      setIsAuthState(false)
+  const [role, setRoleState] = useState<RoleType | undefined>(undefined)
+
+  useEffect(() => {
+    const accessToken = getAccessTokenFromLocalStorage()
+    if (accessToken) {
+      const role = decodeToken(accessToken).role
+      setRoleState(role)
+    }
+  }, [])
+
+  const setRole = (role?: RoleType | undefined) => {
+    setRoleState(role)
+    if (!role) {
       removeTokenFromLocalStorage()
     }
   }
 
-  useEffect(() => {
-    const accessToken = getAccessTokenFromLocalStorage()
-    if (accessToken) setIsAuth(true)
-  }, [])
+  const isAuth = Boolean(role)
 
   return (
-    <AppContext value={{ isAuth, setIsAuth }}>
+    <AppContext value={{ role, setRole, isAuth }}>
       <QueryClientProvider client={queryClient}>
         {children}
         <RefreshToken />
