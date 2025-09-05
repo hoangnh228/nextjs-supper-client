@@ -1,6 +1,7 @@
 import authApiRequest from '@/apiRequests/auth'
+import guestApiRequest from '@/apiRequests/guest'
 import envConfig from '@/config'
-import { DishStatus, OrderStatus, TableStatus } from '@/constants/type'
+import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
 import { EntityError, HttpError } from '@/lib/http'
 import { TokenPayload } from '@/types/jwt.types'
 import { clsx, type ClassValue } from 'clsx'
@@ -76,7 +77,8 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
   // expired time is calculated by: decodedAccessToken.exp - decodedAccessToken.iat
   if (decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
     try {
-      const res = await authApiRequest.refreshToken()
+      const role = decodedAccessToken.role
+      const res = await (role === Role.Guest ? guestApiRequest : authApiRequest).refreshToken()
       setAccessTokenToLocalStorage(res.payload.data.accessToken)
       setRefreshTokenToLocalStorage(res.payload.data.refreshToken)
       param?.onSuccess?.()
