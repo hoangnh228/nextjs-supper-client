@@ -1,4 +1,5 @@
 'use client'
+import QrcodeTable from '@/components/qrcode-table'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
@@ -7,11 +8,14 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { TableStatus, TableStatusValues } from '@/constants/type'
-import { getTableLink, getVietnameseTableStatus } from '@/lib/utils'
+import { getTableLink, getVietnameseTableStatus, handleErrorApi } from '@/lib/utils'
+import { useGetTableQuery, useUpdateTableMutation } from '@/queries/useTable'
 import { UpdateTableBody, UpdateTableBodyType } from '@/schemaValidations/table.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 export default function EditTable({
   id,
@@ -20,6 +24,8 @@ export default function EditTable({
   id?: number | undefined
   setId: (value: number | undefined) => void
 }) {
+  const { data } = useGetTableQuery(id as number, Boolean(id))
+  const updateTableMutation = useUpdateTableMutation()
   const form = useForm<UpdateTableBodyType>({
     resolver: zodResolver(UpdateTableBody),
     defaultValues: {
@@ -28,7 +34,36 @@ export default function EditTable({
       changeToken: false
     }
   })
-  const tableNumber = 0
+
+  const token = data?.payload.data.token ?? ''
+  const tableNumber = data?.payload.data.number ?? 0
+
+  useEffect(() => {
+    if (data) {
+      const { capacity, status } = data.payload.data
+      form.reset({
+        capacity,
+        status,
+        changeToken: form.getValues('changeToken') ?? false
+      })
+    }
+  }, [data, form])
+
+  const handleSubmit = async (values: UpdateTableBodyType) => {
+    if (updateTableMutation.isPending) return
+    try {
+      const res = await updateTableMutation.mutateAsync({ ...values, id: id as number })
+      toast.success(res.payload.message)
+      resetForm()
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError })
+    }
+  }
+
+  const resetForm = () => {
+    setId(undefined)
+    form.reset()
+  }
 
   return (
     <Dialog
@@ -50,7 +85,13 @@ export default function EditTable({
           <DialogTitle>Cập nhật bàn ăn</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form noValidate className='grid auto-rows-max items-start gap-4 md:gap-8' id='edit-table-form'>
+          <form
+            noValidate
+            className='grid auto-rows-max items-start gap-4 md:gap-8'
+            id='edit-table-form'
+            onSubmit={form.handleSubmit(handleSubmit)}
+            onReset={resetForm}
+          >
             <div className='grid gap-4 py-4'>
               <FormItem>
                 <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
@@ -69,7 +110,13 @@ export default function EditTable({
                     <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                       <Label htmlFor='price'>Sức chứa (người)</Label>
                       <div className='col-span-3 w-full space-y-2'>
-                        <Input id='capacity' className='w-full' {...field} type='number' />
+                        <Input
+                          id='capacity'
+                          className='w-full'
+                          {...field}
+                          type='number'
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
                         <FormMessage />
                       </div>
                     </div>
@@ -126,26 +173,30 @@ export default function EditTable({
               <FormItem>
                 <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                   <Label>QR Code</Label>
-                  <div className='col-span-3 w-full space-y-2'></div>
+                  <div className='col-span-3 w-full space-y-2'>
+                    {data && <QrcodeTable token={data.payload.data.token} tableNumber={data.payload.data.number} />}
+                  </div>
                 </div>
               </FormItem>
               <FormItem>
                 <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
                   <Label>URL gọi món</Label>
                   <div className='col-span-3 w-full space-y-2'>
-                    <Link
-                      href={getTableLink({
-                        token: '123123123',
-                        tableNumber: tableNumber
-                      })}
-                      target='_blank'
-                      className='break-all'
-                    >
-                      {getTableLink({
-                        token: '123123123',
-                        tableNumber: tableNumber
-                      })}
-                    </Link>
+                    {data && (
+                      <Link
+                        href={getTableLink({
+                          token: token,
+                          tableNumber: tableNumber as number
+                        })}
+                        target='_blank'
+                        className='break-all'
+                      >
+                        {getTableLink({
+                          token: token,
+                          tableNumber: tableNumber as number
+                        })}
+                      </Link>
+                    )}
                   </div>
                 </div>
               </FormItem>
