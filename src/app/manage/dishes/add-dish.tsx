@@ -157,7 +157,7 @@ export default function AddDish() {
                           className='w-full'
                           {...field}
                           type='number'
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
                         />
                         <FormMessage />
                       </div>
