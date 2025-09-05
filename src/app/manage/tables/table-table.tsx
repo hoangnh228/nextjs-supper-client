@@ -39,11 +39,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { getTableLink, getVietnameseTableStatus } from '@/lib/utils'
-import { useTableListQuery } from '@/queries/useTable'
+import { getTableLink, getVietnameseTableStatus, handleErrorApi } from '@/lib/utils'
+import { useDeleteTableMutation, useTableListQuery } from '@/queries/useTable'
 import { TableListResType } from '@/schemaValidations/table.schema'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 type TableItem = TableListResType['data'][0]
 
@@ -63,7 +64,10 @@ export const columns: ColumnDef<TableItem>[] = [
   {
     accessorKey: 'number',
     header: 'Số bàn',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('number')}</div>
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('number')}</div>,
+    filterFn: (row, _, filterValue) => {
+      return row.original.number.toString().includes(filterValue as string)
+    }
   },
   {
     accessorKey: 'capacity',
@@ -125,6 +129,17 @@ function AlertDialogDeleteTable({
   tableDelete: TableItem | null
   setTableDelete: (value: TableItem | null) => void
 }) {
+  const { mutateAsync } = useDeleteTableMutation()
+  const handleDeleteTable = async () => {
+    try {
+      const res = await mutateAsync(tableDelete?.number as number)
+      setTableDelete(null)
+      toast.success(res.payload.message)
+    } catch (error) {
+      handleErrorApi({ error })
+    }
+  }
+
   return (
     <AlertDialog
       open={Boolean(tableDelete)}
@@ -144,7 +159,7 @@ function AlertDialogDeleteTable({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={handleDeleteTable}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
