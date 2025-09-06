@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         hostname: 'ik.imagekit.io'
       },
       {
+        protocol: 'https',
+        hostname: 'via.placeholder.com'
+      },
+      {
         hostname: 'localhost',
         pathname: '/**'
       }

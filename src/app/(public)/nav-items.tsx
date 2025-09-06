@@ -20,7 +20,7 @@ const menuItems: {
   },
   {
     title: 'Menu',
-    href: '/menu',
+    href: '/guest/menu',
     role: [Role.Guest]
   },
   {
