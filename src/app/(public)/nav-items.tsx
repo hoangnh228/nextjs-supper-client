@@ -1,6 +1,17 @@
 'use client'
 
 import { useAppContext } from '@/components/app-provider'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import { Role } from '@/constants/type'
 import { cn } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
@@ -76,9 +87,23 @@ export default function NavItems({ className }: { className?: string }) {
         return null
       })}
       {role && (
-        <div className={cn(className, 'cursor-pointer')} onClick={handleLogout}>
-          Đăng xuất
-        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <div className={cn(className, 'cursor-pointer')}>Đăng xuất</div>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận đăng xuất</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn đăng xuất không? Việc đăng xuất có thể làm mất thông tin hóa đơn và bàn ăn đã đặt.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout}>Đăng xuất</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </>
   )

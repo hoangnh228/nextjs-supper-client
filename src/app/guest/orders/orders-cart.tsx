@@ -6,6 +6,7 @@ import { useGuestGetOrdersQuery } from '@/queries/useGuest'
 import { UpdateOrderResType } from '@/schemaValidations/order.schema'
 import Image from 'next/image'
 import { useEffect } from 'react'
+import { toast } from 'sonner'
 
 export default function OrdersCart() {
   const { data, refetch } = useGuestGetOrdersQuery()
@@ -26,7 +27,12 @@ export default function OrdersCart() {
     }
 
     function onUpdateOrder(order: UpdateOrderResType['data']) {
-      console.log(order)
+      const {
+        dishSnapshot: { name },
+        quantity,
+        status
+      } = order
+      toast.success(`Món ${name} đã được cập nhật số lượng ${quantity}, trạng thái ${getVietnameseOrderStatus(status)}`)
       refetch()
     }
 
