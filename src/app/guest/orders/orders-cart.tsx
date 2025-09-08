@@ -1,17 +1,59 @@
 'use client'
 import { Badge } from '@/components/ui/badge'
+import { OrderStatus } from '@/constants/type'
 import socket from '@/lib/socket'
 import { formatCurrency, getVietnameseOrderStatus } from '@/lib/utils'
 import { useGuestGetOrdersQuery } from '@/queries/useGuest'
 import { UpdateOrderResType } from '@/schemaValidations/order.schema'
 import Image from 'next/image'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
 
 export default function OrdersCart() {
   const { data, refetch } = useGuestGetOrdersQuery()
-  const orders = data?.payload.data ?? []
-  const totalPrice = orders.reduce((total, order) => total + order.dishSnapshot.price * order.quantity, 0)
+  const orders = useMemo(() => data?.payload.data ?? [], [data])
+
+  const { waitingForPaying, paid } = useMemo(() => {
+    return orders.reduce(
+      (total, order) => {
+        if (
+          order.status === OrderStatus.Pending ||
+          order.status === OrderStatus.Processing ||
+          order.status === OrderStatus.Delivered
+        ) {
+          return {
+            ...total,
+            waitingForPaying: {
+              price: total.waitingForPaying.price + order.dishSnapshot.price * order.quantity,
+              quantity: total.waitingForPaying.quantity + order.quantity
+            }
+          }
+        }
+
+        if (order.status === OrderStatus.Paid) {
+          return {
+            ...total,
+            paid: {
+              price: total.paid.price + order.dishSnapshot.price * order.quantity,
+              quantity: total.paid.quantity + order.quantity
+            }
+          }
+        }
+
+        return total
+      },
+      {
+        waitingForPaying: {
+          price: 0,
+          quantity: 0
+        },
+        paid: {
+          price: 0,
+          quantity: 0
+        }
+      }
+    )
+  }, [orders])
 
   useEffect(() => {
     if (socket.connected) {
@@ -80,12 +122,23 @@ export default function OrdersCart() {
           </div>
         </div>
       ))}
-      <div className='sticky bottom-0'>
-        <div className='w-full justify-between text-xl font-semibold'>
-          <span>Tổng tiền {orders.length} món: </span>
-          <span className='font-semibold'>{formatCurrency(totalPrice)}</span>
+
+      {paid.quantity > 0 && (
+        <div className='sticky bottom-0'>
+          <div className='w-full justify-between text-xl font-semibold'>
+            <span>Đã thanh toán ({paid.quantity} món): </span>
+            <span className='font-semibold'>{formatCurrency(paid.price)}</span>
+          </div>
         </div>
-      </div>
+      )}
+      {waitingForPaying.quantity > 0 && (
+        <div className='sticky bottom-0'>
+          <div className='w-full justify-between text-xl font-semibold'>
+            <span>Chờ thanh toán ({waitingForPaying.quantity} món): </span>
+            <span className='font-semibold'>{formatCurrency(waitingForPaying.price)}</span>
+          </div>
+        </div>
+      )}
     </>
   )
 }
