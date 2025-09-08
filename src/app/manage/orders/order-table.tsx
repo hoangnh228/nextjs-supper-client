@@ -8,8 +8,8 @@ import AutoPagination from '@/components/auto-pagination'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { OrderStatusValues } from '@/constants/type'
-import { getVietnameseOrderStatus } from '@/lib/utils'
-import { GetOrdersResType } from '@/schemaValidations/order.schema'
+import { getVietnameseOrderStatus, handleErrorApi } from '@/lib/utils'
+import { GetOrdersResType, UpdateOrderResType } from '@/schemaValidations/order.schema'
 import {
   ColumnFiltersState,
   SortingState,
@@ -29,10 +29,13 @@ import TableSkeleton from '@/app/manage/orders/table-skeleton'
 import { Button } from '@/components/ui/button'
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import socket from '@/lib/socket'
 import { cn } from '@/lib/utils'
-import { useGetOrdersQuery } from '@/queries/useOrder'
+import { useGetOrdersQuery, useUpdateOrderMutation } from '@/queries/useOrder'
 import { useTableListQuery } from '@/queries/useTable'
+import { GuestCreateOrdersResType } from '@/schemaValidations/guest.schema'
 import { endOfDay, format, startOfDay } from 'date-fns'
+import { toast } from 'sonner'
 
 export const OrderTableContext = createContext({
   setOrderIdEdit: (value: number | undefined) => {},
@@ -66,6 +69,7 @@ export default function OrderTable() {
   const pageIndex = page - 1
   const [orderIdEdit, setOrderIdEdit] = useState<number | undefined>()
   const orderListQuery = useGetOrdersQuery({ fromDate, toDate })
+  const refechOrderList = orderListQuery.refetch
   const tableListQuery = useTableListQuery()
   const orderList = orderListQuery.data?.payload.data ?? []
   const tableList = tableListQuery.data?.payload.data ?? []
@@ -79,6 +83,7 @@ export default function OrderTable() {
     pageSize: PAGE_SIZE //default page size
   })
 
+  const updateOrderMutation = useUpdateOrderMutation()
   const { statics, orderObjectByGuestId, servingGuestByTableNumber } = useOrderService(orderList)
 
   const changeStatus = async (body: {
@@ -86,7 +91,13 @@ export default function OrderTable() {
     dishId: number
     status: (typeof OrderStatusValues)[number]
     quantity: number
-  }) => {}
+  }) => {
+    try {
+      await updateOrderMutation.mutateAsync(body)
+    } catch (error) {
+      handleErrorApi({ error })
+    }
+  }
 
   const table = useReactTable({
     data: orderList,
@@ -121,6 +132,56 @@ export default function OrderTable() {
     setFromDate(initFromDate)
     setToDate(initToDate)
   }
+
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect()
+    }
+
+    function onConnect() {
+      console.log(socket.id)
+    }
+
+    function onDisconnect() {
+      console.log('disconnect')
+    }
+
+    function refetch() {
+      const now = new Date()
+      if (now > fromDate && now < toDate) {
+        refechOrderList()
+      }
+    }
+
+    function onNewOrder(order: GuestCreateOrdersResType['data']) {
+      const { guest } = order[0]
+      toast.success(`${guest?.name} vừa đặt ${order.length} món`)
+      refechOrderList()
+    }
+
+    function onUpdateOrder(order: UpdateOrderResType['data']) {
+      const {
+        dishSnapshot: { name },
+        quantity,
+        status
+      } = order
+      toast.success(`Món ${name} đã được cập nhật số lượng ${quantity}, trạng thái ${getVietnameseOrderStatus(status)}`)
+      refetch()
+    }
+
+    socket.on('new-order', onNewOrder)
+    socket.on('update-order', onUpdateOrder)
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+      socket.off('new-order', onNewOrder)
+      socket.off('update-order', onUpdateOrder)
+    }
+  }, [refechOrderList, fromDate, toDate])
 
   return (
     <OrderTableContext.Provider
