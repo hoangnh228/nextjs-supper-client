@@ -1,12 +1,46 @@
 'use client'
 import { Badge } from '@/components/ui/badge'
+import socket from '@/lib/socket'
 import { formatCurrency, getVietnameseOrderStatus } from '@/lib/utils'
 import { useGuestGetOrdersQuery } from '@/queries/useGuest'
+import { UpdateOrderResType } from '@/schemaValidations/order.schema'
 import Image from 'next/image'
+import { useEffect } from 'react'
 
 export default function OrdersCart() {
-  const { data } = useGuestGetOrdersQuery()
+  const { data, refetch } = useGuestGetOrdersQuery()
   const orders = data?.payload.data ?? []
+  const totalPrice = orders.reduce((total, order) => total + order.dishSnapshot.price * order.quantity, 0)
+
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect()
+    }
+
+    function onConnect() {
+      console.log(socket.id)
+    }
+
+    function onDisconnect() {
+      console.log('disconnect')
+    }
+
+    function onUpdateOrder(order: UpdateOrderResType['data']) {
+      console.log(order)
+      refetch()
+    }
+
+    socket.on('update-order', onUpdateOrder)
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+      socket.off('update-order', onUpdateOrder)
+    }
+  }, [refetch])
 
   return (
     <>
@@ -20,6 +54,7 @@ export default function OrdersCart() {
               height={100}
               width={100}
               quality={100}
+              priority
               className='object-cover w-[80px] h-[80px] rounded-md'
             />
           </div>
@@ -42,9 +77,7 @@ export default function OrdersCart() {
       <div className='sticky bottom-0'>
         <div className='w-full justify-between text-xl font-semibold'>
           <span>Tổng tiền {orders.length} món: </span>
-          <span className='font-semibold'>
-            {formatCurrency(orders.reduce((total, order) => total + order.dishSnapshot.price * order.quantity, 0))}
-          </span>
+          <span className='font-semibold'>{formatCurrency(totalPrice)}</span>
         </div>
       </div>
     </>
