@@ -1,11 +1,13 @@
 'use client'
 
 import RefreshToken from '@/components/refresh-token'
-import { decodeToken, getAccessTokenFromLocalStorage, removeTokenFromLocalStorage } from '@/lib/utils'
+import { generateSocketInstance, getAccessTokenFromLocalStorage, removeTokenFromLocalStorage } from '@/lib/utils'
+import { decodeToken } from '@/middleware'
 import { RoleType } from '@/types/jwt.types'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { Socket } from 'socket.io-client'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,14 +18,13 @@ const queryClient = new QueryClient({
   }
 })
 
-const AppContext = createContext<{
-  isAuth: boolean
-  role: RoleType | undefined
-  setRole: (role?: RoleType | undefined) => void
-}>({
+const AppContext = createContext({
   isAuth: false,
   role: undefined as RoleType | undefined,
-  setRole: () => {}
+  setRole: (role?: RoleType | undefined) => {},
+  socket: undefined as Socket | undefined,
+  setSocket: (socket?: Socket | undefined) => {},
+  disconnectSocket: () => {}
 })
 
 export const useAppContext = () => {
@@ -31,15 +32,26 @@ export const useAppContext = () => {
 }
 
 export default function AppProvider({ children }: { children: React.ReactNode }) {
+  const [socket, setSocket] = useState<Socket | undefined>(undefined)
   const [role, setRoleState] = useState<RoleType | undefined>(undefined)
+  const count = useRef(0)
 
   useEffect(() => {
-    const accessToken = getAccessTokenFromLocalStorage()
-    if (accessToken) {
-      const role = decodeToken(accessToken).role
-      setRoleState(role)
+    if (count.current === 0) {
+      const accessToken = getAccessTokenFromLocalStorage()
+      if (accessToken) {
+        const role = decodeToken(accessToken).role
+        setRoleState(role)
+        setSocket(generateSocketInstance(accessToken))
+      }
+      count.current++
     }
   }, [])
+
+  const disconnectSocket = () => {
+    socket?.disconnect()
+    setSocket(undefined)
+  }
 
   const setRole = (role?: RoleType | undefined) => {
     setRoleState(role)
@@ -51,7 +63,7 @@ export default function AppProvider({ children }: { children: React.ReactNode })
   const isAuth = Boolean(role)
 
   return (
-    <AppContext value={{ role, setRole, isAuth }}>
+    <AppContext value={{ role, setRole, isAuth, socket, setSocket, disconnectSocket }}>
       <QueryClientProvider client={queryClient}>
         {children}
         <RefreshToken />

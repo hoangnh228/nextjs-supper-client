@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { handleErrorApi } from '@/lib/utils'
+import { generateSocketInstance, handleErrorApi } from '@/lib/utils'
 import { useGuestLoginMutation } from '@/queries/useGuest'
 import { GuestLoginBody, GuestLoginBodyType } from '@/schemaValidations/guest.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 export default function GuestLoginForm() {
-  const { setRole } = useAppContext()
+  const { setRole, setSocket } = useAppContext()
   const router = useRouter()
   const searchParams = useSearchParams()
   const params = useParams()
@@ -42,6 +42,7 @@ export default function GuestLoginForm() {
     try {
       const res = await guestLoginMutation.mutateAsync(body)
       setRole(res.payload.data.guest.role)
+      setSocket(generateSocketInstance(res.payload.data.accessToken))
       toast.success(res.payload.message)
       router.push('/guest/menu')
     } catch (error) {

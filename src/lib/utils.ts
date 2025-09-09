@@ -3,12 +3,12 @@ import guestApiRequest from '@/apiRequests/guest'
 import envConfig from '@/config'
 import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
 import { EntityError, HttpError } from '@/lib/http'
-import { TokenPayload } from '@/types/jwt.types'
+import { decodeToken } from '@/middleware'
 import { clsx, type ClassValue } from 'clsx'
 import { format } from 'date-fns'
-import { decode } from 'jsonwebtoken'
 import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
 import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
+import { io } from 'socket.io-client'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
@@ -141,8 +141,6 @@ export const getVietnameseTableStatus = (status: (typeof TableStatus)[keyof type
 export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) =>
   envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
 
-export const decodeToken = (token: string) => decode(token) as TokenPayload
-
 export function removeAccents(str: string) {
   return str
     .normalize('NFD')
@@ -161,6 +159,14 @@ export const formatDateTimeToLocaleString = (date: string | Date) => {
 
 export const formatDateTimeToTimeString = (date: string | Date) => {
   return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss')
+}
+
+export const generateSocketInstance = (accessToken: string) => {
+  return io(envConfig.NEXT_PUBLIC_API_ENDPOINT, {
+    auth: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
 }
 
 export const OrderStatusIcon = {

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { handleErrorApi } from '@/lib/utils'
+import { generateSocketInstance, handleErrorApi } from '@/lib/utils'
 import { useLoginMutation } from '@/queries/useAuth'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,7 +18,7 @@ import { toast } from 'sonner'
 export default function LoginForm() {
   const searchParams = useSearchParams()
   const clearTokens = searchParams.get('clearTokens')
-  const { setRole } = useAppContext()
+  const { setRole, setSocket } = useAppContext()
   const router = useRouter()
   const loginMutation = useLoginMutation()
 
@@ -39,6 +39,7 @@ export default function LoginForm() {
       const res = await loginMutation.mutateAsync(body)
       toast.success(res.payload.message)
       setRole(res.payload.data.account.role)
+      setSocket(generateSocketInstance(res.payload.data.accessToken))
       router.push('/manage/dashboard')
     } catch (error) {
       handleErrorApi({ error, setError: form.setError })

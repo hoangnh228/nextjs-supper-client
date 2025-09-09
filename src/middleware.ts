@@ -1,6 +1,9 @@
 import { Role } from '@/constants/type'
-import { decodeToken } from '@/lib/utils'
+import { TokenPayload } from '@/types/jwt.types'
+import { decode } from 'jsonwebtoken'
 import { NextResponse, type NextRequest } from 'next/server'
+
+export const decodeToken = (token: string) => decode(token) as TokenPayload
 
 const manageRoutes = ['/manage']
 const guestRoutes = ['/guest']
@@ -50,7 +53,5 @@ export function middleware(request: NextRequest) {
   return NextResponse.next()
 }
 
-// See "Matching Paths" below to learn more
-export const config = {
-  matcher: ['/manage/:path*', '/guest/:path*', '/login']
-}
+// Middleware matcher configuration for Next.js 15
+export const matcher = ['/manage/:path*', '/guest/:path*', '/login']
