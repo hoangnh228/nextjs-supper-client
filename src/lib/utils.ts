@@ -48,7 +48,11 @@ export const setRefreshTokenToLocalStorage = (refreshToken: string) =>
 export const removeTokenFromLocalStorage = () =>
   isBrowser && localStorage.removeItem('accessToken') && localStorage.removeItem('refreshToken')
 
-export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuccess?: () => void }) => {
+export const checkAndRefreshToken = async (param?: {
+  onError?: () => void
+  onSuccess?: () => void
+  force?: boolean
+}) => {
   // should not take logic get access and refresh token out of this function (checkAndRefreshToken)
   // because to each time checkAndRefreshToken called, we will have a new access and refresh token
   // to avoid issue get old access and refresh token and use in next request
@@ -77,7 +81,7 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
   // we will check if 1/3 time left, we will refresh token
   // time left is calculated by: decodedAccessToken.exp - now
   // expired time is calculated by: decodedAccessToken.exp - decodedAccessToken.iat
-  if (decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
+  if (param?.force || decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
     try {
       const role = decodedAccessToken.role
       const res = await (role === Role.Guest ? guestApiRequest : authApiRequest).refreshToken()

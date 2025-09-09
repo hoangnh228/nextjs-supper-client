@@ -1,5 +1,6 @@
 'use client'
 
+import socket from '@/lib/socket'
 import { checkAndRefreshToken } from '@/lib/utils'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -24,21 +25,48 @@ export default function RefreshToken() {
       }
     })
 
+    const onRefreshToken = (force?: boolean) =>
+      checkAndRefreshToken({
+        onError: () => {
+          clearInterval(interval as NodeJS.Timeout)
+          router.push('/login')
+        },
+        force
+      })
+
+    onRefreshToken()
+
     // timeout interval must be less than expired time of access token
     // eg: access token is expired in 10 seconds, we will check 1s per time
     const timeOut = 1000
-    interval = setInterval(
-      () =>
-        checkAndRefreshToken({
-          onError: () => {
-            clearInterval(interval as NodeJS.Timeout)
-            router.push('/login')
-          }
-        }),
-      timeOut
-    )
+    interval = setInterval(onRefreshToken, timeOut)
 
-    return () => clearInterval(interval)
+    if (socket.connected) {
+      onConnect()
+    }
+
+    function onConnect() {
+      console.log(socket.id)
+    }
+
+    function onDisconnect() {
+      console.log('disconnect')
+    }
+
+    function onRefreshTokenSocket() {
+      onRefreshToken(true)
+    }
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+    socket.on('refresh-token', onRefreshTokenSocket)
+
+    return () => {
+      clearInterval(interval)
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+      socket.off('refresh-token', onRefreshTokenSocket)
+    }
   }, [pathname, router])
 
   return null
