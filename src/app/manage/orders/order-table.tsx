@@ -156,7 +156,7 @@ export default function OrderTable() {
     function onNewOrder(order: GuestCreateOrdersResType['data']) {
       const { guest } = order[0]
       toast.success(`${guest?.name} vừa đặt ${order.length} món`)
-      refechOrderList()
+      refetch()
     }
 
     function onUpdateOrder(order: UpdateOrderResType['data']) {

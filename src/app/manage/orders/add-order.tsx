@@ -9,9 +9,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { DishStatus } from '@/constants/type'
-import { cn, formatCurrency } from '@/lib/utils'
+import { cn, formatCurrency, handleErrorApi } from '@/lib/utils'
+import { useCreateGuestMutation } from '@/queries/useAccount'
+import { useDishListQuery } from '@/queries/useDish'
+import { useCreateOrdersMutation } from '@/queries/useOrder'
 import { GetListGuestsResType } from '@/schemaValidations/account.schema'
-import { DishListResType } from '@/schemaValidations/dish.schema'
 import { GuestLoginBody, GuestLoginBodyType } from '@/schemaValidations/guest.schema'
 import { CreateOrdersBodyType } from '@/schemaValidations/order.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,21 +21,25 @@ import { PlusCircle } from 'lucide-react'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 export default function AddOrder() {
   const [open, setOpen] = useState(false)
   const [selectedGuest, setSelectedGuest] = useState<GetListGuestsResType['data'][0] | null>(null)
   const [isNewGuest, setIsNewGuest] = useState(true)
   const [orders, setOrders] = useState<CreateOrdersBodyType['orders']>([])
-  const dishes: DishListResType['data'] = []
-
+  const { data } = useDishListQuery()
+  const dishes = useMemo(() => data?.payload.data ?? [], [data])
   const totalPrice = useMemo(() => {
     return dishes.reduce((result, dish) => {
       const order = orders.find((order) => order.dishId === dish.id)
       if (!order) return result
       return result + order.quantity * dish.price
     }, 0)
-  }, [dishes, orders])
+  }, [orders, dishes])
+
+  const createOrdersMutation = useCreateOrdersMutation()
+  const createGuestMutation = useCreateGuestMutation()
 
   const form = useForm<GuestLoginBodyType>({
     resolver: zodResolver(GuestLoginBody),
@@ -60,10 +66,45 @@ export default function AddOrder() {
     })
   }
 
-  const handleOrder = async () => {}
+  const handleOrder = async () => {
+    try {
+      let guestId = selectedGuest?.id
+      if (isNewGuest) {
+        const guestRes = await createGuestMutation.mutateAsync({ name, tableNumber })
+        guestId = guestRes.payload.data.id
+      }
+
+      if (!guestId) {
+        toast.error('Không thể tạo khách hàng')
+        return
+      }
+
+      const res = await createOrdersMutation.mutateAsync({ guestId: guestId, orders })
+      toast.success(res.payload.message)
+      resetForm()
+    } catch (error) {
+      handleErrorApi({ error })
+    }
+  }
+
+  const resetForm = () => {
+    form.reset()
+    setSelectedGuest(null)
+    setIsNewGuest(true)
+    setOrders([])
+    setOpen(false)
+  }
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
+    <Dialog
+      onOpenChange={(value) => {
+        if (!value) {
+          resetForm()
+        }
+        setOpen(value)
+      }}
+      open={open}
+    >
       <DialogTrigger asChild>
         <Button size='sm' className='h-7 gap-1'>
           <PlusCircle className='h-3.5 w-3.5' />
