@@ -10,9 +10,11 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Role, RoleValues } from '@/constants/type'
 import { handleErrorApi } from '@/lib/utils'
 import { useAddAccountMutation } from '@/queries/useAccount'
 import { useUploadMediaMutation } from '@/queries/useMedia'
@@ -36,7 +38,8 @@ export default function AddEmployee() {
       email: '',
       avatar: undefined,
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      role: Role.Employee
     }
   })
   const avatar = form.watch('avatar')
@@ -158,6 +161,34 @@ export default function AddEmployee() {
                       <Label htmlFor='email'>Email</Label>
                       <div className='col-span-3 w-full space-y-2'>
                         <Input id='email' className='w-full' {...field} />
+                        <FormMessage />
+                      </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='role'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
+                      <Label htmlFor='role'>Vai trò</Label>
+                      <div className='col-span-3 w-full space-y-2'>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Chọn vai trò' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {RoleValues.filter((role) => role !== Role.Guest).map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {role}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </div>
                     </div>

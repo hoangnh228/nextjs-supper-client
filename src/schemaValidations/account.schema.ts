@@ -33,7 +33,8 @@ export const CreateEmployeeAccountBody = z
     email: z.string().email(),
     avatar: z.string().url().optional(),
     password: z.string().min(6).max(100),
-    confirmPassword: z.string().min(6).max(100)
+    confirmPassword: z.string().min(6).max(100),
+    role: z.enum(RoleValues)
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -55,7 +56,8 @@ export const UpdateEmployeeAccountBody = z
     avatar: z.string().url().optional(),
     changePassword: z.boolean().optional(),
     password: z.string().min(6).max(100).optional(),
-    confirmPassword: z.string().min(6).max(100).optional()
+    confirmPassword: z.string().min(6).max(100).optional(),
+    role: z.enum(RoleValues)
   })
   .strict()
   .superRefine(({ confirmPassword, password, changePassword }, ctx) => {
