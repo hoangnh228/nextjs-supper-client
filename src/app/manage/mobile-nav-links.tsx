@@ -1,14 +1,22 @@
 'use client'
 import menuItems from '@/app/manage/menuItems'
+import { useAppContext } from '@/components/app-provider'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 import { Package2, PanelLeft } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function MobileNavLinks() {
   const pathname = usePathname()
+  const { role } = useAppContext()
+
+  useEffect(() => {
+    console.log(role)
+  }, [role])
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -28,6 +36,7 @@ export default function MobileNavLinks() {
           </Link>
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href
+            if (!role || role === 'Guest' || !Item.role.includes(role as 'Owner' | 'Employee')) return null
             return (
               <Link
                 key={index}

@@ -4,7 +4,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const manageRoutes = ['/manage']
 const guestRoutes = ['/guest']
-const privateRoutes = [...manageRoutes, ...guestRoutes]
+const onlyOwnerRoutes = ['/manage/accounts']
+const privateRoutes = [...manageRoutes, ...guestRoutes, ...onlyOwnerRoutes]
 const unAuthRoutes = ['/login']
 
 // This function can be marked `async` if using `await` inside
@@ -39,7 +40,9 @@ export function middleware(request: NextRequest) {
     const role = decodeToken(accessToken).role
     const isGuestAccessToManageRoutes = role === Role.Guest && manageRoutes.some((route) => pathname.startsWith(route))
     const isNotGuestAccessToGuestRoutes = role !== Role.Guest && guestRoutes.some((route) => pathname.startsWith(route))
-    if (isGuestAccessToManageRoutes || isNotGuestAccessToGuestRoutes) {
+    const isNotOwnerAccessToOwnerRoutes =
+      role !== Role.Owner && onlyOwnerRoutes.some((route) => pathname.startsWith(route))
+    if (isGuestAccessToManageRoutes || isNotGuestAccessToGuestRoutes || isNotOwnerAccessToOwnerRoutes) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
