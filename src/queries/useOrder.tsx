@@ -17,6 +17,12 @@ export const useGetOrderDetailQuery = (id: number, enabled: boolean) => {
   })
 }
 
+export const useCreateOrdersMutation = () => {
+  return useMutation({
+    mutationFn: orderApiRequest.createOrder
+  })
+}
+
 export const useUpdateOrderMutation = () => {
   return useMutation({
     mutationFn: ({ orderId, ...body }: { orderId: number } & UpdateOrderBodyType) =>
