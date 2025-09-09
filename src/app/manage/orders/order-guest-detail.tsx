@@ -6,19 +6,46 @@ import {
   formatCurrency,
   formatDateTimeToLocaleString,
   formatDateTimeToTimeString,
-  getVietnameseOrderStatus
+  getVietnameseOrderStatus,
+  handleErrorApi
 } from '@/lib/utils'
-import { GetOrdersResType } from '@/schemaValidations/order.schema'
+import { usePayGuestOrdersMutation } from '@/queries/useOrder'
+import { GetOrdersResType, PayGuestOrdersResType } from '@/schemaValidations/order.schema'
+import { Loader } from 'lucide-react'
 import Image from 'next/image'
 import { Fragment } from 'react'
+import { toast } from 'sonner'
 
 type Guest = GetOrdersResType['data'][0]['guest']
 type Orders = GetOrdersResType['data']
-export default function OrderGuestDetail({ guest, orders }: { guest: Guest; orders: Orders }) {
+export default function OrderGuestDetail({
+  guest,
+  orders,
+  onPaySuccess
+}: {
+  guest: Guest
+  orders: Orders
+  onPaySuccess?: (data: PayGuestOrdersResType) => void
+}) {
   const ordersFilterToPurchase = guest
     ? orders.filter((order) => order.status !== OrderStatus.Paid && order.status !== OrderStatus.Rejected)
     : []
   const purchasedOrderFilter = guest ? orders.filter((order) => order.status === OrderStatus.Paid) : []
+  const payForGuestMutation = usePayGuestOrdersMutation()
+
+  const payForGuest = async () => {
+    if (payForGuestMutation.isPending || !guest) return
+    try {
+      const res = await payForGuestMutation.mutateAsync({ guestId: guest.id })
+      if (res.status === 200) {
+        toast.success(res.payload.message)
+        onPaySuccess?.(res.payload)
+      }
+    } catch (error) {
+      handleErrorApi({ error })
+    }
+  }
+
   return (
     <div className='space-y-2 text-sm'>
       {guest && (
@@ -115,8 +142,18 @@ export default function OrderGuestDetail({ guest, orders }: { guest: Guest; orde
       </div>
 
       <div>
-        <Button className='w-full' size={'sm'} variant={'secondary'} disabled={ordersFilterToPurchase.length === 0}>
-          Thanh toán tất cả ({ordersFilterToPurchase.length} đơn)
+        <Button
+          className='w-full'
+          size={'sm'}
+          variant={'secondary'}
+          disabled={ordersFilterToPurchase.length === 0}
+          onClick={payForGuest}
+        >
+          {payForGuestMutation.isPending ? (
+            <Loader className='w-4 h-4 animate-spin' />
+          ) : (
+            `Thanh toán tất cả (${ordersFilterToPurchase.length} đơn)`
+          )}
         </Button>
       </div>
     </div>

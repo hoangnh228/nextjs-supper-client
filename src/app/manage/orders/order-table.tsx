@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { OrderStatusValues } from '@/constants/type'
 import { getVietnameseOrderStatus, handleErrorApi } from '@/lib/utils'
-import { GetOrdersResType, UpdateOrderResType } from '@/schemaValidations/order.schema'
+import { GetOrdersResType, PayGuestOrdersResType, UpdateOrderResType } from '@/schemaValidations/order.schema'
 import {
   ColumnFiltersState,
   SortingState,
@@ -169,9 +169,15 @@ export default function OrderTable() {
       refetch()
     }
 
+    function onPayment(order: PayGuestOrdersResType['data']) {
+      const { guest } = order[0]
+      toast.success(`${guest?.name} tại bàn ${guest?.tableNumber} đã thanh toán ${order.length} đơn`)
+      refetch()
+    }
+
     socket.on('new-order', onNewOrder)
     socket.on('update-order', onUpdateOrder)
-
+    socket.on('payment', onPayment)
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
 
@@ -180,6 +186,7 @@ export default function OrderTable() {
       socket.off('disconnect', onDisconnect)
       socket.off('new-order', onNewOrder)
       socket.off('update-order', onUpdateOrder)
+      socket.off('payment', onPayment)
     }
   }, [refechOrderList, fromDate, toDate])
 
