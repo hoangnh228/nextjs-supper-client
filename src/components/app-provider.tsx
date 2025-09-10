@@ -1,14 +1,14 @@
 'use client'
-
 import ListenLogoutSocket from '@/components/listen-logout-socket'
 import RefreshToken from '@/components/refresh-token'
+import { decodeToken } from '@/lib/token'
 import { generateSocketInstance, getAccessTokenFromLocalStorage, removeTokenFromLocalStorage } from '@/lib/utils'
-import { decodeToken } from '@/middleware'
 import { RoleType } from '@/types/jwt.types'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Socket } from 'socket.io-client'
+import { create } from 'zustand'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,22 +19,36 @@ const queryClient = new QueryClient({
   }
 })
 
-const AppContext = createContext({
-  isAuth: false,
-  role: undefined as RoleType | undefined,
-  setRole: (role?: RoleType | undefined) => {},
-  socket: undefined as Socket | undefined,
-  setSocket: (socket?: Socket | undefined) => {},
-  disconnectSocket: () => {}
-})
-
-export const useAppContext = () => {
-  return useContext(AppContext)
+type AppStoreType = {
+  isAuth: boolean
+  role: RoleType | undefined
+  socket: Socket | undefined
+  setRole: (role?: RoleType | undefined) => void
+  setSocket: (socket?: Socket | undefined) => void
+  disconnectSocket: () => void
 }
 
+export const useAppStore = create<AppStoreType>((set) => ({
+  isAuth: false,
+  role: undefined as RoleType | undefined,
+  setRole: (role?: RoleType | undefined) => {
+    set({ role, isAuth: Boolean(role) })
+    if (!role) {
+      removeTokenFromLocalStorage()
+    }
+  },
+  socket: undefined as Socket | undefined,
+  setSocket: (socket?: Socket | undefined) => set({ socket }),
+  disconnectSocket: () =>
+    set((state) => {
+      state.socket?.disconnect()
+      return { socket: undefined }
+    })
+}))
+
 export default function AppProvider({ children }: { children: React.ReactNode }) {
-  const [socket, setSocket] = useState<Socket | undefined>(undefined)
-  const [role, setRoleState] = useState<RoleType | undefined>(undefined)
+  const setRole = useAppStore((state) => state.setRole)
+  const setSocket = useAppStore((state) => state.setSocket)
   const count = useRef(0)
 
   useEffect(() => {
@@ -42,35 +56,19 @@ export default function AppProvider({ children }: { children: React.ReactNode })
       const accessToken = getAccessTokenFromLocalStorage()
       if (accessToken) {
         const role = decodeToken(accessToken).role
-        setRoleState(role)
+        setRole(role)
         setSocket(generateSocketInstance(accessToken))
       }
       count.current++
     }
-  }, [])
-
-  const disconnectSocket = () => {
-    socket?.disconnect()
-    setSocket(undefined)
-  }
-
-  const setRole = (role?: RoleType | undefined) => {
-    setRoleState(role)
-    if (!role) {
-      removeTokenFromLocalStorage()
-    }
-  }
-
-  const isAuth = Boolean(role)
+  }, [setRole, setSocket])
 
   return (
-    <AppContext value={{ role, setRole, isAuth, socket, setSocket, disconnectSocket }}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-        <RefreshToken />
-        <ListenLogoutSocket />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </AppContext>
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <RefreshToken />
+      <ListenLogoutSocket />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }

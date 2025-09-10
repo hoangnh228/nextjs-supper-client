@@ -1,9 +1,6 @@
 import { Role } from '@/constants/type'
-import { TokenPayload } from '@/types/jwt.types'
-import { decode } from 'jsonwebtoken'
 import { NextResponse, type NextRequest } from 'next/server'
-
-export const decodeToken = (token: string) => decode(token) as TokenPayload
+import { decodeToken } from './lib/token'
 
 const manageRoutes = ['/manage']
 const guestRoutes = ['/guest']
