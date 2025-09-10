@@ -2,5 +2,18 @@
   "HomePage": {
     "title": "Big Boy Restaurant",
     "description": "Good taste, complete moments"
+  },
+  "SwitchLanguage": {
+    "title": "Select Language",
+    "vi": "Vietnamese",
+    "en": "English"
+  },
+  "LoginPage": {
+    "title": "Login",
+    "description": "Login to continue",
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "loginWithGoogle": "Login with Google"
   }
 }

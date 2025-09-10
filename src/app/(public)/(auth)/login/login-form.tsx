@@ -10,6 +10,7 @@ import { generateSocketInstance, handleErrorApi } from '@/lib/utils'
 import { useLoginMutation } from '@/queries/useAuth'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslations } from 'next-intl'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -22,6 +23,7 @@ export default function LoginForm() {
   const setSocket = useAppStore((state) => state.setSocket)
   const router = useRouter()
   const loginMutation = useLoginMutation()
+  const t = useTranslations('LoginPage')
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -54,8 +56,8 @@ export default function LoginForm() {
   return (
     <Card className='mx-auto max-w-sm w-full'>
       <CardHeader>
-        <CardTitle className='text-2xl'>Đăng nhập</CardTitle>
-        <CardDescription>Nhập email và mật khẩu của bạn để đăng nhập vào hệ thống</CardDescription>
+        <CardTitle className='text-2xl'>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -73,7 +75,7 @@ export default function LoginForm() {
                 render={({ field }) => (
                   <FormItem>
                     <div className='grid gap-2'>
-                      <Label htmlFor='email'>Email</Label>
+                      <Label htmlFor='email'>{t('email')}</Label>
                       <Input id='email' type='email' placeholder='m@example.com' required {...field} />
                       <FormMessage />
                     </div>
@@ -87,7 +89,7 @@ export default function LoginForm() {
                   <FormItem>
                     <div className='grid gap-2'>
                       <div className='flex items-center'>
-                        <Label htmlFor='password'>Password</Label>
+                        <Label htmlFor='password'>{t('password')}</Label>
                       </div>
                       <Input id='password' type='password' required {...field} />
                       <FormMessage />
@@ -96,10 +98,10 @@ export default function LoginForm() {
                 )}
               />
               <Button type='submit' className='w-full'>
-                Đăng nhập
+                {t('login')}
               </Button>
               <Button variant='outline' className='w-full' type='button'>
-                Đăng nhập bằng Google
+                {t('loginWithGoogle')}
               </Button>
             </div>
           </form>
