@@ -1,9 +1,17 @@
 import { dishApiRequest } from '@/apiRequests/dish'
 import { Link } from '@/i18n/navigation'
-import { formatCurrency, generateSlugUrl } from '@/lib/utils'
+import { formatCurrency, generateSlugUrl, htmlToTextForDescription } from '@/lib/utils'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
+
+export async function generateMetadata() {
+  const t = await getTranslations('HomePage')
+  return {
+    title: t('title'),
+    description: htmlToTextForDescription(t('description'))
+  }
+}
 
 export default async function Home() {
   const t = await getTranslations('HomePage')

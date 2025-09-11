@@ -21,5 +21,12 @@
     "invalidEmail": "Email không hợp lệ",
     "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự",
     "passwordMax": "Mật khẩu không vượt quá 100 ký tự"
+  },
+  "DishDetail": {
+    "title": "Chi tiết món ăn",
+    "description": "Mô tả món ăn"
+  },
+  "DishDetail": {
+    "notFound": "Món ăn không tồn tại"
   }
 }

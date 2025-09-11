@@ -21,5 +21,12 @@
     "invalidEmail": "Invalid email address",
     "passwordMin": "Password must be at least 6 characters",
     "passwordMax": "Password must be at most 100 characters"
+  },
+  "DishDetail": {
+    "title": "Dish Detail",
+    "description": "Dish description"
+  },
+  "DishDetail": {
+    "notFound": "Dish not found"
   }
 }
