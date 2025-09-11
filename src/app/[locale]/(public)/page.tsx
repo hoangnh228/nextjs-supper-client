@@ -1,15 +1,22 @@
 import { dishApiRequest } from '@/apiRequests/dish'
+import envConfig, { Locale } from '@/config'
 import { Link } from '@/i18n/navigation'
 import { formatCurrency, generateSlugUrl, htmlToTextForDescription } from '@/lib/utils'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }) {
+  const { locale } = await params
   const t = await getTranslations('HomePage')
+  const url = envConfig.NEXT_PUBLIC_URL + `/${locale}`
+
   return {
     title: t('title'),
-    description: htmlToTextForDescription(t('description'))
+    description: htmlToTextForDescription(t('description')),
+    alternates: {
+      canonical: url
+    }
   }
 }
 

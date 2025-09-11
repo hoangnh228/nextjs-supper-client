@@ -1,7 +1,8 @@
 {
   "HomePage": {
     "title": "Big Boy Restaurant",
-    "description": "Good taste, complete moments"
+    "description": "Good taste, complete moments",
+    "defaultTitle": "Big Boy Restaurant"
   },
   "SwitchLanguage": {
     "title": "Select Language",

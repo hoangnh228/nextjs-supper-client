@@ -2,6 +2,7 @@ import AppProvider from '@/components/app-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Locale } from '@/config'
 import { routing } from '@/i18n/routing'
+import { baseOpenGraph } from '@/shared-metadata'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -29,8 +30,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
   const { locale } = await params
   const t = await getTranslations({ locale: await locale, namespace: 'HomePage' })
   return {
-    title: t('title'),
-    description: t('description')
+    title: {
+      template: `%s | ${t('title')}`,
+      default: t('defaultTitle')
+    },
+    openGraph: {
+      ...baseOpenGraph
+    }
   }
 }
 

@@ -1,7 +1,8 @@
 {
   "HomePage": {
     "title": "Nhà hàng Big Boy",
-    "description": "Vị ngon, trọn khoảnh khắc"
+    "description": "Vị ngon, trọn khoảnh khắc",
+    "defaultTitle": "Nhà hàng Big Boy"
   },
   "SwitchLanguage": {
     "title": "Chọn ngôn ngữ",
