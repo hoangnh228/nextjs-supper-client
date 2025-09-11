@@ -13,11 +13,10 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Role } from '@/constants/type'
+import { Link, useRouter } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { RoleType } from '@/types/jwt.types'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 const menuItems: {
   title: string

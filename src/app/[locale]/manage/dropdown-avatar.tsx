@@ -10,11 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { Link, useRouter } from '@/i18n/navigation'
 import { handleErrorApi } from '@/lib/utils'
 import { useAccountMe } from '@/queries/useAccount'
 import { useLogoutMutation } from '@/queries/useAuth'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 export default function DropdownAvatar() {
   const router = useRouter()

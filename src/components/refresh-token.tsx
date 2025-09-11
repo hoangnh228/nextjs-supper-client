@@ -1,8 +1,7 @@
 'use client'
-
 import { useAppStore } from '@/components/app-provider'
+import { usePathname, useRouter } from '@/i18n/navigation'
 import { checkAndRefreshToken } from '@/lib/utils'
-import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 // these paths are not check refresh token

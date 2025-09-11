@@ -42,11 +42,11 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Toaster />
-        <AppProvider>
-          <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
-            <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-          </ThemeProvider>
-        </AppProvider>
+        <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+          <NextIntlClientProvider messages={messages}>
+            <AppProvider>{children}</AppProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
