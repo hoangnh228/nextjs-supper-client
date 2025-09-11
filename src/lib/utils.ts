@@ -8,6 +8,7 @@ import { clsx, type ClassValue } from 'clsx'
 import { format } from 'date-fns'
 import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
 import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
+import slugify from 'slugify'
 import { io } from 'socket.io-client'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
@@ -194,4 +195,12 @@ export const wrapServerApi = async <T>(fn: () => Promise<T>) => {
   }
 
   return result
+}
+
+export const generateSlugUrl = ({ name, id }: { name: string; id: number }) => {
+  return `${slugify(name)}-i.${id}`
+}
+
+export const getIdFromSlugUrl = (slugUrl: string) => {
+  return Number(slugUrl.split('-i.')[1])
 }
