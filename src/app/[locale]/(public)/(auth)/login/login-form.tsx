@@ -1,6 +1,6 @@
 'use client'
-
 import { useAppStore } from '@/components/app-provider'
+import SearchParamsLoader, { useSearchParamsLoader } from '@/components/search-params-loader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
@@ -12,14 +12,13 @@ import { useLoginMutation } from '@/queries/useAuth'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
-import { useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 export default function LoginForm() {
-  const searchParams = useSearchParams()
-  const clearTokens = searchParams.get('clearTokens')
+  const { searchParams, setSearchParams } = useSearchParamsLoader()
+  const clearTokens = searchParams?.get('clearTokens')
   const setRole = useAppStore((state) => state.setRole)
   const setSocket = useAppStore((state) => state.setSocket)
   const router = useRouter()
@@ -56,6 +55,7 @@ export default function LoginForm() {
 
   return (
     <Card className='mx-auto max-w-sm w-full'>
+      <SearchParamsLoader onParamsReceived={setSearchParams} />
       <CardHeader>
         <CardTitle className='text-2xl'>{t('title')}</CardTitle>
         <CardDescription>{t('description')}</CardDescription>

@@ -2,11 +2,19 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Locale, locales } from '@/config'
-import { usePathname, useRouter } from '@/i18n/navigation'
 import { useLocale, useTranslations } from 'next-intl'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 export default function SwitchLanguage() {
+  return (
+    <Suspense>
+      <SwitchLanguageMain />
+    </Suspense>
+  )
+}
+
+export function SwitchLanguageMain() {
   const t = useTranslations('SwitchLanguage')
   const locale = useLocale()
   const pathname = usePathname()
