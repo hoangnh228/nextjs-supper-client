@@ -14,7 +14,8 @@
     "email": "Email",
     "password": "Password",
     "login": "Login",
-    "loginWithGoogle": "Login with Google"
+    "loginWithGoogle": "Login with Google",
+    "loggingIn": "Logging in"
   },
   "ErrorMessage": {
     "required": "This field is required",

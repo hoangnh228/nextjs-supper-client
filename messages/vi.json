@@ -14,7 +14,8 @@
     "email": "Email",
     "password": "Mật khẩu",
     "login": "Đăng nhập",
-    "loginWithGoogle": "Đăng nhập bằng Google"
+    "loginWithGoogle": "Đăng nhập bằng Google",
+    "loggingIn": "Đang đăng nhập"
   },
   "ErrorMessage": {
     "required": "Trường này là bắt buộc",

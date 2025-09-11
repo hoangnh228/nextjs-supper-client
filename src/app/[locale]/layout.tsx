@@ -6,6 +6,7 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { notFound } from 'next/navigation'
+import NextTopLoader from 'nextjs-toploader'
 import { Toaster } from 'sonner'
 import './globals.css'
 
@@ -57,6 +58,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <NextTopLoader showSpinner={false} />
         <Toaster />
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
           <NextIntlClientProvider messages={messages}>

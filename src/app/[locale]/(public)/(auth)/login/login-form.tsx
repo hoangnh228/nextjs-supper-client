@@ -11,6 +11,7 @@ import { generateSocketInstance, handleErrorApi } from '@/lib/utils'
 import { useLoginMutation } from '@/queries/useAuth'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { LoaderCircle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -103,8 +104,9 @@ export default function LoginForm() {
                   </FormItem>
                 )}
               />
-              <Button type='submit' className='w-full'>
-                {t('login')}
+              <Button type='submit' className='w-full' disabled={loginMutation.isPending}>
+                {loginMutation.isPending && <LoaderCircle className='w-4 h-4 mr-2 animate-spin' />}
+                {loginMutation.isPending ? t('loggingIn') : t('login')}
               </Button>
               <Button variant='outline' className='w-full' type='button'>
                 {t('loginWithGoogle')}
