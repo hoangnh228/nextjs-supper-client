@@ -24,6 +24,7 @@ export default function LoginForm() {
   const router = useRouter()
   const loginMutation = useLoginMutation()
   const t = useTranslations('LoginPage')
+  const errorMessageT = useTranslations('ErrorMessage')
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -73,12 +74,14 @@ export default function LoginForm() {
               <FormField
                 control={form.control}
                 name='email'
-                render={({ field }) => (
+                render={({ field, formState: { errors } }) => (
                   <FormItem>
                     <div className='grid gap-2'>
                       <Label htmlFor='email'>{t('email')}</Label>
                       <Input id='email' type='email' placeholder='m@example.com' required {...field} />
-                      <FormMessage />
+                      <FormMessage>
+                        {Boolean(errors.email?.message) ? errorMessageT(errors.email?.message as string) : ''}
+                      </FormMessage>
                     </div>
                   </FormItem>
                 )}
@@ -86,14 +89,16 @@ export default function LoginForm() {
               <FormField
                 control={form.control}
                 name='password'
-                render={({ field }) => (
+                render={({ field, formState: { errors } }) => (
                   <FormItem>
                     <div className='grid gap-2'>
                       <div className='flex items-center'>
                         <Label htmlFor='password'>{t('password')}</Label>
                       </div>
                       <Input id='password' type='password' required {...field} />
-                      <FormMessage />
+                      <FormMessage>
+                        {Boolean(errors.password?.message) ? errorMessageT(errors.password?.message as string) : ''}
+                      </FormMessage>
                     </div>
                   </FormItem>
                 )}

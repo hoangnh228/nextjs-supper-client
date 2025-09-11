@@ -15,5 +15,11 @@
     "password": "Password",
     "login": "Login",
     "loginWithGoogle": "Login with Google"
+  },
+  "ErrorMessage": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "passwordMin": "Password must be at least 6 characters",
+    "passwordMax": "Password must be at most 100 characters"
   }
 }

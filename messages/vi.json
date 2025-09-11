@@ -15,5 +15,11 @@
     "password": "Mật khẩu",
     "login": "Đăng nhập",
     "loginWithGoogle": "Đăng nhập bằng Google"
+  },
+  "ErrorMessage": {
+    "required": "Trường này là bắt buộc",
+    "invalidEmail": "Email không hợp lệ",
+    "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự",
+    "passwordMax": "Mật khẩu không vượt quá 100 ký tự"
   }
 }

@@ -1,6 +1,5 @@
 import { dishApiRequest } from '@/apiRequests/dish'
 import DishDetail from '@/app/[locale]/(public)/dishes/[slug]/dish-detail'
-
 import { getIdFromSlugUrl, wrapServerApi } from '@/lib/utils'
 
 export default async function DishPage({ params: { slug } }: { params: { slug: string } }) {
