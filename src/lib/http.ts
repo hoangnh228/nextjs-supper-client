@@ -1,4 +1,5 @@
 import envConfig from '@/config'
+import { redirect } from '@/i18n/navigation'
 import {
   getAccessTokenFromLocalStorage,
   normalizePath,
@@ -7,7 +8,7 @@ import {
   setRefreshTokenToLocalStorage
 } from '@/lib/utils'
 import { LoginResType } from '@/schemaValidations/auth.schema'
-import { redirect } from 'next/navigation'
+import Cookies from 'js-cookie'
 
 type CustomOptions = Omit<RequestInit, 'method' | 'body'> & {
   baseUrl?: string
@@ -102,6 +103,7 @@ const request = async <Response>(
         }
       )
     } else if (res.status === UNAUTHORIZED_STATUS) {
+      const locale = Cookies.get('NEXT_LOCALE')
       if (isClient) {
         if (!clientLogoutRequest) {
           clientLogoutRequest = fetch('/api/auth/logout', {
@@ -124,13 +126,13 @@ const request = async <Response>(
           // redirect to login may infinite loop if not process right way
           // because in login page, we call api which need accessToken to be set
           // but if accessToken was removed and redirect to login page, it will infinite loop.
-          location.href = '/login'
+          location.href = `/${locale}/login`
         }
       } else {
         // this is case when access token is not expired yet
         // and we call api in Nextjs server (route handler or server component) to server backend
         const accessToken = (options?.headers as { Authorization?: string }).Authorization?.split('Bearer ')[1]
-        redirect(`/logout?accessToken=${accessToken}`)
+        redirect({ href: `/logout?accessToken=${accessToken}`, locale: locale as string })
       }
     } else {
       throw new HttpError(data)
