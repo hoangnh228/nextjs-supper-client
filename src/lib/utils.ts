@@ -1,6 +1,6 @@
 import authApiRequest from '@/apiRequests/auth'
 import guestApiRequest from '@/apiRequests/guest'
-import envConfig from '@/config'
+import envConfig, { defaultLocale } from '@/config'
 import { DishStatus, OrderStatus, Role, TableStatus } from '@/constants/type'
 import { EntityError, HttpError } from '@/lib/http'
 import { decodeToken } from '@/lib/token'
@@ -140,7 +140,7 @@ export const getVietnameseTableStatus = (status: (typeof TableStatus)[keyof type
 }
 
 export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) =>
-  envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
+  envConfig.NEXT_PUBLIC_URL + `/${defaultLocale}/tables/${tableNumber}?token=${token}`
 
 export function removeAccents(str: string) {
   return str
