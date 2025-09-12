@@ -6,7 +6,6 @@ import { EntityError, HttpError } from '@/lib/http'
 import { decodeToken } from '@/lib/token'
 import { clsx, type ClassValue } from 'clsx'
 import { format } from 'date-fns'
-import { convert } from 'html-to-text'
 import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
 import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 import slugify from 'slugify'
@@ -204,12 +203,4 @@ export const generateSlugUrl = ({ name, id }: { name: string; id: number }) => {
 
 export const getIdFromSlugUrl = (slugUrl: string) => {
   return Number(slugUrl.split('-i.')[1])
-}
-
-export const htmlToTextForDescription = (html: string) => {
-  convert(html, {
-    limits: {
-      maxInputLength: 140
-    }
-  })
 }

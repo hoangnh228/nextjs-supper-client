@@ -17,6 +17,12 @@ export const useOrderService = (orderList: GetOrdersResType['data']) => {
     }
     const orderObjectByGuestId: OrderObjectByGuestID = {}
     const guestByTableNumber: ServingGuestByTableNumber = {}
+    type OrderStatusValue = (typeof OrderStatus)[keyof typeof OrderStatus]
+    const ACTIVE_STATUSES: ReadonlyArray<OrderStatusValue> = [
+      OrderStatus.Pending,
+      OrderStatus.Processing,
+      OrderStatus.Delivered
+    ]
     orderList.forEach((order) => {
       statics.status[order.status] = statics.status[order.status] + 1
       // Nếu table và guest chưa bị xóa
@@ -55,9 +61,7 @@ export const useOrderService = (orderList: GetOrdersResType['data']) => {
       const servingGuestObject: OrderObjectByGuestID = {}
       for (const guestId in guestObject) {
         const guestOrders = guestObject[guestId]
-        const isServingGuest = guestOrders.some((order) =>
-          [OrderStatus.Pending, OrderStatus.Processing, OrderStatus.Delivered].includes(order.status as any)
-        )
+        const isServingGuest = guestOrders.some((order) => ACTIVE_STATUSES.includes(order.status))
         if (isServingGuest) {
           servingGuestObject[Number(guestId)] = guestOrders
         }

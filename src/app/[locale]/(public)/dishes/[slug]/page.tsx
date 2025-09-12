@@ -1,7 +1,8 @@
 import { dishApiRequest } from '@/apiRequests/dish'
 import DishDetail from '@/app/[locale]/(public)/dishes/[slug]/dish-detail'
 import envConfig, { Locale } from '@/config'
-import { generateSlugUrl, getIdFromSlugUrl, htmlToTextForDescription, wrapServerApi } from '@/lib/utils'
+import { generateSlugUrl, getIdFromSlugUrl, wrapServerApi } from '@/lib/utils'
+import { htmlToTextForDescription } from '@/lib/utils-server'
 import { getTranslations } from 'next-intl/server'
 import { cache } from 'react'
 

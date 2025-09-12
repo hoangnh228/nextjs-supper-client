@@ -1,3 +1,9 @@
-import Layout from '@/app/[locale]/(public)/layout'
+import PublicLayout from '@/app/[locale]/(public)/layout'
 
-export default Layout
+export default function GuestLayout({
+  children
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return <PublicLayout modal={null}>{children}</PublicLayout>
+}

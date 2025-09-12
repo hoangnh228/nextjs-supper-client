@@ -38,14 +38,14 @@ import { endOfDay, format, startOfDay } from 'date-fns'
 import { toast } from 'sonner'
 
 export const OrderTableContext = createContext({
-  setOrderIdEdit: (value: number | undefined) => {},
+  setOrderIdEdit: (() => {}) as (value: number | undefined) => void,
   orderIdEdit: undefined as number | undefined,
-  changeStatus: (payload: {
+  changeStatus: (() => {}) as (payload: {
     orderId: number
     dishId: number
     status: (typeof OrderStatusValues)[number]
     quantity: number
-  }) => {},
+  }) => void,
   orderObjectByGuestId: {} as OrderObjectByGuestID
 })
 

@@ -1,6 +1,6 @@
 import LoginForm from '@/app/[locale]/(public)/(auth)/login/login-form'
 import envConfig, { Locale } from '@/config'
-import { htmlToTextForDescription } from '@/lib/utils'
+import { htmlToTextForDescription } from '@/lib/utils-server'
 import { getTranslations } from 'next-intl/server'
 import { Suspense } from 'react'
 

@@ -1,7 +1,7 @@
 import { dishApiRequest } from '@/apiRequests/dish'
-import Modal from '@/app/[locale]/(public)/@modal/(.)dishes/[slug]/modal'
-import DishDetail from '@/app/[locale]/(public)/dishes/[slug]/dish-detail'
 import { getIdFromSlugUrl, wrapServerApi } from '@/lib/utils'
+import DishDetail from '../../../dishes/[slug]/dish-detail'
+import Modal from './modal'
 
 export default async function DishPage({ params: { slug } }: { params: { slug: string } }) {
   const id = getIdFromSlugUrl(slug)
