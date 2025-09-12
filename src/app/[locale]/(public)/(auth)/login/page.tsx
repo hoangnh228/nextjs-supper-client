@@ -1,8 +1,8 @@
 import LoginForm from '@/app/[locale]/(public)/(auth)/login/login-form'
+import Logout from '@/app/[locale]/(public)/(auth)/login/logout'
 import envConfig, { Locale } from '@/config'
 import { htmlToTextForDescription } from '@/lib/utils-server'
 import { getTranslations } from 'next-intl/server'
-import { Suspense } from 'react'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params
@@ -21,9 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
 export default function Login() {
   return (
     <div className='min-h-screen flex items-center justify-center'>
-      <Suspense fallback={<div>Loading...</div>}>
-        <LoginForm />
-      </Suspense>
+      <LoginForm />
+      <Logout />
     </div>
   )
 }

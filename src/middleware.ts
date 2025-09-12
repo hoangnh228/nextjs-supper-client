@@ -9,10 +9,11 @@ const guestRoutes = ['/vi/guest', '/en/guest']
 const onlyOwnerRoutes = ['/vi/manage/accounts', '/en/manage/accounts']
 const privateRoutes = [...manageRoutes, ...guestRoutes, ...onlyOwnerRoutes]
 const unAuthRoutes = ['/vi/login', '/en/login']
+const loginRoutes = ['/vi/login', '/en/login']
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, searchParams } = request.nextUrl
 
   // Skip middleware for static files, API routes, etc.
   if (
@@ -47,9 +48,13 @@ export function middleware(request: NextRequest) {
   if (refreshToken) {
     // 2.1. if try to access unAuthRoutes, redirect to home page
     if (unAuthRoutes.some((route) => pathname.startsWith(route))) {
-      // return NextResponse.redirect(new URL('/', request.url))
-      response.headers.set('x-middleware-rewrite', new URL('/', request.url).toString())
-      return response
+      if (loginRoutes.some((route) => pathname.startsWith(route)) && searchParams.get('accessToken')) {
+        return response
+      }
+
+      return NextResponse.redirect(new URL('/', request.url))
+      // response.headers.set('x-middleware-rewrite', new URL('/', request.url).toString())
+      // return response
     }
 
     // 2.2. if accessToken is expired, redirect to refresh-token page
